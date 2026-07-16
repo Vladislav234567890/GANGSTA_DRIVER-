@@ -29,16 +29,6 @@
       display: flex;
       flex-direction: column;
       position: relative;
-      transition: all 0.3s ease;
-    }
-    /* Полноэкранный режим */
-    .pda.fullscreen {
-      border-radius: 0;
-      padding: 0;
-      box-shadow: none;
-    }
-    .pda.fullscreen .screen {
-      border-radius: 0;
     }
     .screen {
       flex: 1;
@@ -50,7 +40,6 @@
       flex-direction: column;
       position: relative;
       overflow: hidden;
-      transition: border-radius 0.3s ease;
     }
     .status-bar {
       display: flex;
@@ -133,7 +122,6 @@
       font-weight: bold;
       text-transform: uppercase;
       border: 1px solid #2e405a;
-      box-shadow: inset 0 0 12px #1f3144;
     }
     .sub-mission strong { color: #f2c94c; font-weight: 900; }
     
@@ -144,7 +132,7 @@
       padding: 0 2px;
     }
     
-    .restart-btn {
+    .restart-btn, .fullscreen-btn {
       background: #1f2b3d;
       border: 2px solid #3f5470;
       color: #c0d8f0;
@@ -152,54 +140,32 @@
       font-weight: bold;
       padding: 8px 16px;
       border-radius: 30px;
-      flex: 1;
       font-family: 'Courier New', monospace;
       cursor: pointer;
-      box-shadow: 0 0 0 1px #0b111e, inset 0 0 16px #2c405c;
       letter-spacing: 2px;
       touch-action: manipulation;
       transition: transform 0.1s, background 0.1s;
     }
-    .restart-btn:active {
+    .restart-btn { flex: 1; }
+    .restart-btn:active, .fullscreen-btn:active {
       background: #2f405a;
       border-color: #7a9bc0;
       transform: scale(0.95);
     }
-    
     .fullscreen-btn {
       background: #1a2a1f;
-      border: 2px solid #3a5a3a;
-      color: #a0d8a0;
-      font-size: 14px;
-      font-weight: bold;
+      border-color: #3a5a3a;
+      color: #80ff80;
+      min-width: 55px;
+      text-align: center;
+      font-size: 20px;
       padding: 8px 12px;
-      border-radius: 30px;
-      font-family: 'Courier New', monospace;
-      cursor: pointer;
-      box-shadow: 0 0 0 1px #0b1e0b, inset 0 0 16px #2c4a2c;
-      letter-spacing: 1px;
-      touch-action: manipulation;
-      transition: transform 0.1s, background 0.1s;
-      white-space: nowrap;
-      min-width: 44px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .fullscreen-btn:active {
-      background: #2a4a2a;
-      border-color: #6aaa6a;
-      transform: scale(0.95);
+      box-shadow: 0 0 10px #44ff4420;
     }
     .fullscreen-btn.active {
       background: #2a3a1a;
       border-color: #6aaa6a;
-      color: #80ff80;
-      box-shadow: 0 0 20px #44ff4460, inset 0 0 16px #3a5a2a;
-    }
-    .fullscreen-icon {
-      font-size: 20px;
-      line-height: 1;
+      color: #ff6644;
     }
     
     .corner-delta {
@@ -250,7 +216,6 @@
       padding: 3px;
       margin-top: 2px;
       border-radius: 4px;
-      font-family: monospace;
     }
 
     .touch-controls {
@@ -274,25 +239,14 @@
       touch-action: manipulation;
       flex: 1;
       text-align: center;
-      box-shadow: inset 0 0 10px #2c405c;
-      transition: transform 0.1s, background 0.1s;
     }
-    .touch-btn:active {
-      background: #2f405a;
-      border-color: #7a9bc0;
-      transform: scale(0.93);
-    }
+    .touch-btn:active { background: #2f405a; transform: scale(0.93); }
     .touch-fire {
       background: #2a1f2a;
       border-color: #5a3a3a;
       color: #ff6b7a;
-      box-shadow: 0 0 12px #ff3b4a40, inset 0 0 10px #3a2a2a;
     }
-    .touch-fire:active {
-      background: #4a2a2a;
-      border-color: #8a4a4a;
-      transform: scale(0.93);
-    }
+    .touch-fire:active { background: #4a2a2a; }
 
     .win-overlay, .lose-overlay, .start-overlay {
       position: absolute;
@@ -315,7 +269,6 @@
       letter-spacing: 8px;
       text-align: center;
       animation: winPulse 0.8s infinite alternate;
-      pointer-events: none;
     }
     .win-overlay .sub {
       font-family: 'Courier New', monospace;
@@ -324,14 +277,11 @@
       opacity: 0.8;
       margin-top: 10px;
       letter-spacing: 3px;
-      text-shadow: 0 0 20px #fff;
-      pointer-events: none;
     }
     @keyframes winPulse {
-      0% { transform: scale(1); opacity: 0.95; }
-      100% { transform: scale(1.03); opacity: 1; }
+      0% { transform: scale(1); }
+      100% { transform: scale(1.03); }
     }
-
     .lose-overlay { background: rgba(139, 0, 0, 0.8); pointer-events: auto; }
     .lose-overlay.show { display: flex; }
     .lose-overlay .main {
@@ -343,29 +293,22 @@
       letter-spacing: 6px;
       text-align: center;
       animation: loseShake 0.12s infinite alternate;
-      pointer-events: none;
     }
     .lose-overlay .sub {
       font-family: 'Courier New', monospace;
       font-size: 14px;
       color: #ffaaaa;
-      opacity: 0.9;
       margin-top: 10px;
-      letter-spacing: 3px;
-      text-shadow: 0 0 20px #ff0000;
-      pointer-events: none;
     }
     @keyframes loseShake {
       0% { transform: translateX(-3px); }
       100% { transform: translateX(3px); }
     }
-
     .start-overlay {
       display: flex;
       background: transparent;
       animation: pulse 1s infinite alternate;
       z-index: 100;
-      pointer-events: none;
     }
     .start-overlay.hidden { display: none; }
     .start-overlay .main {
@@ -374,84 +317,24 @@
       font-weight: 900;
       color: #00ff88;
       text-shadow: 0 0 40px #00ff88, 0 0 80px #00ff88;
-      letter-spacing: 6px;
     }
     .start-overlay .sub {
       font-family: 'Courier New', monospace;
       font-size: 14px;
       color: #fff;
-      opacity: 0.7;
       margin-top: 8px;
-      letter-spacing: 3px;
     }
     @keyframes pulse {
       0% { transform: scale(1); opacity: 0.9; }
       100% { transform: scale(1.04); opacity: 1; }
     }
-
-    /* Индикатор выхода из полноэкранного режима */
-    .exit-fullscreen-hint {
-      position: absolute;
-      top: 10px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(0,0,0,0.8);
-      color: #fff;
-      padding: 8px 16px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-family: 'Courier New', monospace;
-      z-index: 300;
-      opacity: 0;
-      transition: opacity 0.3s ease;
-      pointer-events: none;
-    }
-    .exit-fullscreen-hint.show {
-      opacity: 1;
-    }
-
-    /* Адаптация для ландшафтной ориентации */
-    @media (orientation: landscape) {
-      .touch-controls {
-        padding: 2px 6px;
-        gap: 4px;
-      }
-      .touch-btn {
-        padding: 6px 8px;
-        font-size: 14px;
-      }
-      .status-bar {
-        font-size: 10px;
-        padding: 1px 4px 3px 4px;
-      }
-      .timer {
-        font-size: 11px;
-        padding: 1px 6px;
-      }
-      .footer-panel {
-        font-size: 9px;
-        padding: 3px 4px 1px;
-      }
-      .sub-mission {
-        font-size: 8px;
-        padding: 2px 0 2px;
-        margin: 2px 0 0;
-      }
-      .controls-hint {
-        font-size: 7px;
-      }
-    }
   </style>
 </head>
 <body>
-<div class="pda" id="pdaContainer">
+<div class="pda">
   <div class="screen">
     <div class="corner-delta top-left">Δ = Δ</div>
     <div class="corner-delta bottom-right">Δ = Δ</div>
-
-    <div class="exit-fullscreen-hint" id="exitFullscreenHint">
-      ↩️ Нажми кнопку назад или сверни для выхода
-    </div>
 
     <div class="start-overlay" id="startOverlay">
       <div class="main">СТАРТ</div>
@@ -489,7 +372,7 @@
       <div class="kills" id="enemyCountDisplay">🚗 0/10</div>
       <div class="boss-hp" id="bossHpDisplay">💀 БОСС: 5</div>
     </div>
-    <div class="controls-hint">⬆️⬇️ ДВИЖЕНИЕ | 💥 СТРЕЛЬБА | ТАП ПО ЭКРАНУ</div>
+    <div class="controls-hint">⬆️⬇️ ДВИЖЕНИЕ | 💥 СТРЕЛЬБА | ТАП ПО ЭКРАНУ | ⛶ ФУЛЛСКРИН</div>
     <div class="sub-mission">
       <span>⚡ убей всех врагов за <strong>3</strong> мин ⚡</span>
     </div>
@@ -498,9 +381,7 @@
   
   <div class="bottom-buttons">
     <button class="restart-btn" id="restartBtn">⟳ РЕСТАРТ</button>
-    <button class="fullscreen-btn" id="fullscreenBtn" title="Полноэкранный режим">
-      <span class="fullscreen-icon">⛶</span>
-    </button>
+    <button class="fullscreen-btn" id="fullscreenBtn" title="Полноэкранный режим">⛶</button>
   </div>
 </div>
 
@@ -523,56 +404,47 @@
     const btnUp = document.getElementById('btnUp');
     const btnDown = document.getElementById('btnDown');
     const btnFire = document.getElementById('btnFire');
-    const pdaContainer = document.getElementById('pdaContainer');
-    const exitFullscreenHint = document.getElementById('exitFullscreenHint');
+
+    // Адаптивный канвас
+    function resizeCanvas() {
+      const container = canvas.parentElement;
+      const maxWidth = container.clientWidth - 16;
+      const ratio = 800 / 400;
+      let w = Math.min(maxWidth, 800);
+      let h = w / ratio;
+      if (h > window.innerHeight * 0.4) {
+        h = window.innerHeight * 0.4;
+        w = h * ratio;
+      }
+      canvas.style.width = w + 'px';
+      canvas.style.height = h + 'px';
+    }
+    window.addEventListener('resize', resizeCanvas);
+    window.addEventListener('orientationchange', () => setTimeout(resizeCanvas, 100));
+    resizeCanvas();
 
     // ========== ПОЛНОЭКРАННЫЙ РЕЖИМ ==========
     let isFullscreen = false;
-    
-    function toggleFullscreen() {
-      if (!isFullscreen) {
-        enterFullscreen();
-      } else {
-        exitFullscreen();
-      }
-    }
 
     function enterFullscreen() {
-      const elem = document.documentElement;
+      const el = document.documentElement;
       
-      // Пробуем разные API для разных браузеров
-      if (elem.requestFullscreen) {
-        elem.requestFullscreen().catch(err => {
-          console.log('Fullscreen error:', err);
-          // Если не удалось, пробуем для конкретного элемента
-          if (pdaContainer.requestFullscreen) {
-            pdaContainer.requestFullscreen().catch(e => console.log('Container fullscreen error:', e));
+      if (el.requestFullscreen) {
+        el.requestFullscreen().catch(() => {
+          if (document.getElementById('pdaContainer')?.requestFullscreen) {
+            document.getElementById('pdaContainer').requestFullscreen();
           }
         });
-      } else if (elem.webkitRequestFullscreen) {
-        elem.webkitRequestFullscreen();
-      } else if (elem.msRequestFullscreen) {
-        elem.msRequestFullscreen();
-      } else if (pdaContainer.webkitRequestFullscreen) {
-        pdaContainer.webkitRequestFullscreen();
+      } else if (el.webkitRequestFullscreen) {
+        el.webkitRequestFullscreen();
+      } else if (el.msRequestFullscreen) {
+        el.msRequestFullscreen();
       }
       
-      // Визуальные изменения
       isFullscreen = true;
-      pdaContainer.classList.add('fullscreen');
+      fullscreenBtn.textContent = '✕';
       fullscreenBtn.classList.add('active');
-      fullscreenBtn.querySelector('.fullscreen-icon').textContent = '✕';
-      
-      // Показываем подсказку на мобильных
-      if (/Mobi|Android/i.test(navigator.userAgent)) {
-        exitFullscreenHint.classList.add('show');
-        setTimeout(() => {
-          exitFullscreenHint.classList.remove('show');
-        }, 3000);
-      }
-      
-      resizeCanvas();
-      vibrate(20);
+      if (navigator.vibrate) navigator.vibrate(20);
     }
 
     function exitFullscreen() {
@@ -585,92 +457,51 @@
       }
       
       isFullscreen = false;
-      pdaContainer.classList.remove('fullscreen');
+      fullscreenBtn.textContent = '⛶';
       fullscreenBtn.classList.remove('active');
-      fullscreenBtn.querySelector('.fullscreen-icon').textContent = '⛶';
-      exitFullscreenHint.classList.remove('show');
-      
-      resizeCanvas();
-      vibrate(15);
+      if (navigator.vibrate) navigator.vibrate(15);
     }
 
-    // Отслеживаем выход из полноэкранного режима (например, по кнопке Back)
-    function handleFullscreenChange() {
-      const isCurrentlyFullscreen = !!(
-        document.fullscreenElement ||
-        document.webkitFullscreenElement ||
-        document.msFullscreenElement
-      );
-      
-      if (!isCurrentlyFullscreen && isFullscreen) {
-        isFullscreen = false;
-        pdaContainer.classList.remove('fullscreen');
-        fullscreenBtn.classList.remove('active');
-        fullscreenBtn.querySelector('.fullscreen-icon').textContent = '⛶';
-        exitFullscreenHint.classList.remove('show');
-        resizeCanvas();
+    function toggleFullscreen() {
+      if (isFullscreen) {
+        exitFullscreen();
+      } else {
+        enterFullscreen();
       }
     }
 
+    // Кнопка полноэкранного режима
+    fullscreenBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      toggleFullscreen();
+    });
+    fullscreenBtn.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+    });
+
+    // Отслеживание выхода из полноэкранного режима
+    function handleFullscreenChange() {
+      const fs = document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement;
+      if (!fs && isFullscreen) {
+        isFullscreen = false;
+        fullscreenBtn.textContent = '⛶';
+        fullscreenBtn.classList.remove('active');
+        resizeCanvas();
+      }
+    }
     document.addEventListener('fullscreenchange', handleFullscreenChange);
     document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
     document.addEventListener('msfullscreenchange', handleFullscreenChange);
     document.addEventListener('mozfullscreenchange', handleFullscreenChange);
 
-    // Обработчик кнопки полноэкранного режима
-    fullscreenBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      toggleFullscreen();
-    });
-    
-    fullscreenBtn.addEventListener('pointerdown', (e) => {
-      e.preventDefault();
-      toggleFullscreen();
-    });
-
-    // Двойной тап для переключения полноэкранного режима
-    let lastTapTime = 0;
-    canvas.addEventListener('pointerdown', function(e) {
-      const currentTime = new Date().getTime();
-      const tapLength = currentTime - lastTapTime;
-      
-      if (tapLength < 300 && tapLength > 0) {
-        // Двойной тап
+    // Клавиша F
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'f' || e.key === 'F') {
         e.preventDefault();
         toggleFullscreen();
       }
-      
-      lastTapTime = currentTime;
     });
-
-    // Адаптивный канвас
-    function resizeCanvas() {
-      const container = canvas.parentElement;
-      const maxWidth = container.clientWidth - 16;
-      const ratio = 800 / 400;
-      let maxHeight;
-      
-      if (isFullscreen) {
-        maxHeight = window.innerHeight * 0.5;
-      } else {
-        maxHeight = window.innerHeight * 0.4;
-      }
-      
-      let w = Math.min(maxWidth, 800);
-      let h = w / ratio;
-      
-      if (h > maxHeight) {
-        h = maxHeight;
-        w = h * ratio;
-      }
-      
-      canvas.style.width = w + 'px';
-      canvas.style.height = h + 'px';
-    }
-    
-    window.addEventListener('resize', resizeCanvas);
-    window.addEventListener('orientationchange', () => setTimeout(resizeCanvas, 150));
-    resizeCanvas();
 
     const GAME_DURATION = 180;
     let timeLeft = GAME_DURATION;
@@ -720,12 +551,6 @@
     let upPressed = false;
     let downPressed = false;
 
-    function vibrate(ms) {
-      if (navigator.vibrate) {
-        navigator.vibrate(ms);
-      }
-    }
-
     // ========== КОЛЁСА ==========
     function drawWheel(cx, cy, r, isOffroad) {
       ctx.fillStyle = '#1a1a1a';
@@ -764,55 +589,32 @@
       ctx.beginPath(); ctx.arc(cx, cy, r * 0.2, 0, Math.PI * 2); ctx.fill();
     }
 
-    // ========== СТРЕЛОК ==========
+    // ========== СТРЕЛОК НА КРЫШЕ ==========
     function drawGunnerOnRoof(cx, roofTop) {
       const s = SCALE;
       const gunnerY = roofTop - 12 * s;
       
       ctx.fillStyle = '#4a6741';
       ctx.fillRect(cx - 5 * s, gunnerY + 6 * s, 10 * s, 11 * s);
-      
       ctx.fillStyle = '#5a7a4a';
       ctx.fillRect(cx - 4 * s, gunnerY + 8 * s, 8 * s, 4 * s);
-      
       ctx.fillStyle = '#d4b896';
       ctx.beginPath(); ctx.arc(cx, gunnerY + 3 * s, 5 * s, 0, Math.PI * 2); ctx.fill();
-      
       ctx.fillStyle = '#2a3a1a';
       ctx.beginPath(); ctx.ellipse(cx, gunnerY + 0.5 * s, 6 * s, 3 * s, 0, Math.PI, 0); ctx.fill();
       ctx.fillRect(cx - 6 * s, gunnerY - 1 * s, 12 * s, 2 * s);
-      
       ctx.fillStyle = '#111';
       ctx.fillRect(cx - 4 * s, gunnerY + 1.5 * s, 3 * s, 2.5 * s);
       ctx.fillRect(cx + 1 * s, gunnerY + 1.5 * s, 3 * s, 2.5 * s);
-      ctx.strokeStyle = '#111'; ctx.lineWidth = 0.6;
-      ctx.beginPath(); ctx.moveTo(cx - 1 * s, gunnerY + 2.5 * s); ctx.lineTo(cx + 1 * s, gunnerY + 2.5 * s); ctx.stroke();
       
       const gunX = cx + 4 * s;
       const gunY = gunnerY + 6 * s;
-      
       ctx.fillStyle = '#333';
       ctx.fillRect(gunX, gunY - 1.5 * s, 14 * s, 2.5 * s);
-      ctx.strokeStyle = '#555'; ctx.lineWidth = 0.6;
-      ctx.strokeRect(gunX, gunY - 1.5 * s, 14 * s, 2.5 * s);
-      
       ctx.fillStyle = '#8B4513';
       ctx.fillRect(gunX, gunY - 1 * s, 6 * s, 2.5 * s);
-      
-      ctx.fillStyle = '#444';
-      ctx.beginPath();
-      ctx.moveTo(gunX + 8 * s, gunY + 0.5 * s);
-      ctx.lineTo(gunX + 10 * s, gunY + 5 * s);
-      ctx.lineTo(gunX + 12 * s, gunY + 5 * s);
-      ctx.lineTo(gunX + 10 * s, gunY + 0.5 * s);
-      ctx.closePath(); ctx.fill();
-      
       ctx.fillStyle = '#8B4513';
       ctx.fillRect(gunX + 13 * s, gunY - 2.5 * s, 5 * s, 3 * s);
-      ctx.fillRect(gunX + 8 * s, gunY + 0.5 * s, 2.5 * s, 4 * s);
-      
-      ctx.fillStyle = '#d4b896';
-      ctx.fillRect(gunX, gunY + 0.5 * s, 4 * s, 2.5 * s);
       
       if (player.shootCooldown > player.shootDelay - 2) {
         ctx.fillStyle = '#ffdd00';
@@ -833,12 +635,9 @@
       const s = SCALE;
       const x = player.x - 14 * s, y = player.y - 18 * s;
       const w = player.width, h = player.height;
-      const cx = x + w/2, cy = y + h/2;
+      const cx = x + w/2;
       
-      ctx.shadowColor = '#0066ff';
-      ctx.shadowBlur = 22;
-
-      ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.shadowBlur = 0;
+      ctx.fillStyle = 'rgba(0,0,0,0.5)';
       ctx.fillRect(x + 4 * s, y + h - 4 * s, w - 8 * s, 6 * s);
 
       ctx.fillStyle = '#1a3a1a';
@@ -853,17 +652,11 @@
       ctx.lineTo(x + w - 2 * s, y + h * 0.5);
       ctx.lineTo(x + w - 6 * s, y + h - 6 * s);
       ctx.closePath(); ctx.fill();
-      
-      ctx.strokeStyle = '#3a6a3a'; ctx.lineWidth = 2;
-      ctx.stroke();
+      ctx.strokeStyle = '#3a6a3a'; ctx.lineWidth = 2; ctx.stroke();
 
       ctx.fillStyle = '#2a4a2a';
       ctx.fillRect(x + 8 * s, y + 10 * s, 12 * s, 8 * s);
       ctx.fillRect(x + w - 20 * s, y + 8 * s, 11 * s, 10 * s);
-      ctx.fillRect(x + w/2 - 6 * s, y + 6 * s, 14 * s, 7 * s);
-      ctx.fillStyle = '#0a2a0a';
-      ctx.fillRect(x + 14 * s, y + h - 14 * s, 11 * s, 6 * s);
-      ctx.fillRect(x + w - 19 * s, y + h - 12 * s, 12 * s, 5 * s);
 
       ctx.fillStyle = '#1a2a3a';
       ctx.beginPath();
@@ -874,52 +667,25 @@
       ctx.closePath(); ctx.fill();
       ctx.strokeStyle = '#3a6a3a'; ctx.lineWidth = 1.5; ctx.stroke();
 
-      ctx.strokeStyle = '#3a6a3a'; ctx.lineWidth = 1.2;
-      ctx.beginPath(); ctx.moveTo(cx, y + 3 * s); ctx.lineTo(cx, y + h * 0.33); ctx.stroke();
-
-      ctx.fillStyle = 'rgba(255,255,255,0.1)';
-      ctx.fillRect(x + w * 0.28, y + 5 * s, w * 0.18, h * 0.2);
-
       drawGunnerOnRoof(cx, y);
 
       ctx.fillStyle = '#ffee88';
       ctx.shadowColor = '#ffcc00'; ctx.shadowBlur = 10;
       ctx.beginPath(); ctx.arc(x + w - 8 * s, y + h * 0.28, 4.5 * s, 0, Math.PI * 2); ctx.fill();
-      ctx.fillStyle = '#fff';
-      ctx.beginPath(); ctx.arc(x + w - 8 * s, y + h * 0.28, 2 * s, 0, Math.PI * 2); ctx.fill();
       ctx.shadowBlur = 0;
-
-      ctx.fillStyle = '#ff3333'; ctx.shadowColor = '#ff0000'; ctx.shadowBlur = 8;
+      ctx.fillStyle = '#ff3333';
       ctx.fillRect(x + 1 * s, y + h * 0.32, 4 * s, 6 * s);
-      ctx.shadowBlur = 0;
-
-      ctx.fillStyle = '#555';
-      ctx.fillRect(x + w - 3 * s, y + h * 0.5, 4 * s, h * 0.18);
-      ctx.fillRect(x - 1 * s, y + h * 0.5, 4 * s, h * 0.18);
 
       const wheelRadius = h * 0.24;
       const wheelY = y + h - wheelRadius - 2 * s;
       drawWheel(x + w * 0.22, wheelY, wheelRadius, true);
       drawWheel(x + w * 0.78, wheelY, wheelRadius, true);
 
-      ctx.fillStyle = '#222';
-      ctx.beginPath(); ctx.arc(cx - 8 * s, y - 2 * s, 6 * s, 0, Math.PI * 2); ctx.fill();
-      ctx.strokeStyle = '#444'; ctx.lineWidth = 1.2; ctx.stroke();
-      ctx.fillStyle = '#777';
-      ctx.beginPath(); ctx.arc(cx - 8 * s, y - 2 * s, 3.5 * s, 0, Math.PI * 2); ctx.fill();
-
-      ctx.fillStyle = '#444';
-      ctx.fillRect(x + w - 6 * s, y + 2 * s, 5 * s, 4 * s);
-
       ctx.shadowBlur = 0;
-
       ctx.fillStyle = '#fff';
       ctx.font = `bold ${9 * s}px "Courier New", monospace`;
       ctx.textAlign = 'center';
-      ctx.shadowColor = '#000';
-      ctx.shadowBlur = 4;
       ctx.fillText('ИГРОК', cx, y - 18 * s);
-      ctx.shadowBlur = 0;
     }
 
     // ========== ВРАГИ ==========
@@ -935,10 +701,6 @@
       ctx.shadowColor = c.accent; ctx.shadowBlur = 10;
       
       const x = e.x, y = e.y, w = e.width, h = e.height, cx = x + w/2;
-      
-      ctx.fillStyle = 'rgba(0,0,0,0.4)'; ctx.shadowBlur = 0;
-      ctx.fillRect(x + 4 * s, y + h - 4 * s, w - 8 * s, 6 * s);
-      ctx.shadowColor = c.accent; ctx.shadowBlur = 10;
       
       ctx.fillStyle = c.body;
       ctx.beginPath();
@@ -958,31 +720,16 @@
       ctx.lineTo(x + w * 0.78, y + h * 0.42);
       ctx.lineTo(x + w * 0.22, y + h * 0.42);
       ctx.closePath(); ctx.fill();
-      ctx.strokeStyle = c.accent; ctx.lineWidth = 1.2;
-      ctx.beginPath(); ctx.moveTo(cx, y + 3.5 * s); ctx.lineTo(cx, y + h * 0.4); ctx.stroke();
       
-      ctx.fillStyle = '#ffee88'; ctx.shadowColor = '#ffcc00'; ctx.shadowBlur = 8;
+      ctx.fillStyle = '#ffee88';
       ctx.fillRect(x + w - 6 * s, y + h * 0.3, 5 * s, 8 * s);
-      ctx.fillStyle = '#ff3333'; ctx.shadowColor = '#ff0000'; ctx.shadowBlur = 6;
+      ctx.fillStyle = '#ff3333';
       ctx.fillRect(x + 1 * s, y + h * 0.3, 5 * s, 8 * s);
-      ctx.shadowBlur = 0;
       
       const wheelRadius = h * 0.2;
       const wheelY = y + h - wheelRadius - 2 * s;
       drawWheel(x + w * 0.25, wheelY, wheelRadius, false);
       drawWheel(x + w * 0.75, wheelY, wheelRadius, false);
-      
-      ctx.fillStyle = c.accent; ctx.fillRect(x + 3 * s, y + h * 0.38, w * 0.15, 3 * s);
-      ctx.fillStyle = '#222'; ctx.fillRect(x + 1 * s, y + h * 0.35, 3 * s, 8 * s);
-      ctx.fillRect(x + w * 0.12, y + h * 0.35, 3 * s, 8 * s);
-
-      ctx.fillStyle = '#ff6600'; ctx.shadowColor = '#ff4400'; ctx.shadowBlur = 6;
-      ctx.beginPath();
-      ctx.moveTo(x - 2 * s, y + h - 12 * s);
-      ctx.lineTo(x - 7 * s + Math.random() * 3, y + h - 9 * s);
-      ctx.lineTo(x - 2 * s, y + h - 7 * s);
-      ctx.closePath(); ctx.fill();
-      ctx.shadowBlur = 0;
     }
 
     // ========== БОСС ТАНК ==========
@@ -994,28 +741,12 @@
 
       ctx.shadowColor = '#ff4400'; ctx.shadowBlur = 30;
 
+      // Гусеницы
       ctx.fillStyle = '#1a1a1a';
       ctx.fillRect(x + 2 * s, y + h - 15 * s, w - 4 * s, 14 * s);
       ctx.strokeStyle = '#333'; ctx.lineWidth = 1.5; ctx.strokeRect(x + 2 * s, y + h - 15 * s, w - 4 * s, 14 * s);
       
-      for (let i = 0; i < 8; i++) {
-        const tx = x + 6 * s + i * (w - 12 * s) / 8;
-        ctx.fillStyle = '#2a2a2a';
-        ctx.fillRect(tx, y + h - 14 * s, (w - 12 * s) / 8 - 1, 11 * s);
-        ctx.strokeStyle = '#444'; ctx.lineWidth = 0.8; ctx.strokeRect(tx, y + h - 14 * s, (w - 12 * s) / 8 - 1, 11 * s);
-      }
-      
-      for (let i = 0; i < 5; i++) {
-        const wx = x + 16 * s + i * (w - 32 * s) / 4;
-        ctx.fillStyle = '#333';
-        ctx.beginPath(); ctx.arc(wx, y + h - 8 * s, 7 * s, 0, Math.PI * 2); ctx.fill();
-        ctx.strokeStyle = '#555'; ctx.lineWidth = 1.2; ctx.stroke();
-        ctx.fillStyle = '#666';
-        ctx.beginPath(); ctx.arc(wx, y + h - 8 * s, 4 * s, 0, Math.PI * 2); ctx.fill();
-        ctx.fillStyle = '#888';
-        ctx.beginPath(); ctx.arc(wx, y + h - 8 * s, 2 * s, 0, Math.PI * 2); ctx.fill();
-      }
-
+      // Корпус
       ctx.fillStyle = '#4a5a3a';
       ctx.beginPath();
       ctx.moveTo(x + 8 * s, y + 10 * s);
@@ -1024,10 +755,8 @@
       ctx.lineTo(x + 4 * s, y + h - 17 * s);
       ctx.closePath(); ctx.fill();
       ctx.strokeStyle = '#6a7a5a'; ctx.lineWidth = 2.5; ctx.stroke();
-      
-      ctx.fillStyle = '#3a4a2a';
-      ctx.fillRect(x + 14 * s, y + 16 * s, w - 28 * s, 8 * s);
 
+      // Башня
       ctx.fillStyle = '#3a4a2a';
       ctx.beginPath();
       ctx.moveTo(cx - 17 * s, y - 4 * s);
@@ -1036,58 +765,25 @@
       ctx.lineTo(cx - 13 * s, y + 8 * s);
       ctx.closePath(); ctx.fill();
       ctx.strokeStyle = '#5a6a4a'; ctx.lineWidth = 2; ctx.stroke();
-      
-      ctx.fillStyle = '#2a3a1a';
-      ctx.beginPath(); ctx.arc(cx, y, 7 * s, 0, Math.PI * 2); ctx.fill();
-      ctx.strokeStyle = '#5a6a4a'; ctx.lineWidth = 1.5; ctx.stroke();
 
-      ctx.fillStyle = '#444';
-      ctx.fillRect(cx - 5 * s, y - 8 * s, 10 * s, 8 * s);
-      ctx.strokeStyle = '#666'; ctx.lineWidth = 1.2; ctx.strokeRect(cx - 5 * s, y - 8 * s, 10 * s, 8 * s);
+      // Пушка
       ctx.fillStyle = '#555';
       ctx.fillRect(cx - 3 * s, y - 22 * s, 6 * s, 16 * s);
-      ctx.strokeStyle = '#777'; ctx.lineWidth = 1.2; ctx.strokeRect(cx - 3 * s, y - 22 * s, 6 * s, 16 * s);
       ctx.fillStyle = '#666';
       ctx.fillRect(cx - 5 * s, y - 26 * s, 10 * s, 6 * s);
-
-      ctx.fillStyle = '#333';
-      ctx.fillRect(cx + 14 * s, y - 6 * s, 10 * s, 3 * s);
-      ctx.fillStyle = '#444';
-      ctx.fillRect(cx + 21 * s, y - 7 * s, 4 * s, 5 * s);
-      
-      ctx.fillStyle = '#3a3a3a';
-      ctx.fillRect(x + w - 14 * s, y + 4 * s, 10 * s, 16 * s);
-      ctx.strokeStyle = '#555'; ctx.lineWidth = 1.2; ctx.strokeRect(x + w - 14 * s, y + 4 * s, 10 * s, 16 * s);
-
-      ctx.fillStyle = '#ffaa00'; ctx.shadowColor = '#ff8800'; ctx.shadowBlur = 16;
-      ctx.fillRect(x + w - 10 * s, y + 18 * s, 9 * s, 8 * s);
-      ctx.fillRect(x + w - 10 * s, y + 30 * s, 9 * s, 8 * s);
-      ctx.shadowBlur = 0;
-
-      ctx.fillStyle = '#888';
-      for (let i = 0; i < 4; i++) {
-        const sx = x + 12 * s + i * (w - 24 * s) / 3;
-        ctx.beginPath();
-        ctx.moveTo(sx, y + 8 * s);
-        ctx.lineTo(sx + 5 * s, y);
-        ctx.lineTo(sx + 10 * s, y + 8 * s);
-        ctx.fill();
-      }
 
       ctx.shadowBlur = 0;
       ctx.fillStyle = '#ff4444';
       ctx.font = `bold ${10 * s}px "Courier New", monospace`;
       ctx.textAlign = 'center';
       ctx.fillText('ТАНК-БОСС', cx, y - 30 * s);
-      ctx.fillStyle = '#aaa';
-      ctx.font = `${7 * s}px "Courier New", monospace`;
       ctx.fillText('T-666', cx, y + h - 4 * s);
 
+      // HP бар
       ctx.fillStyle = '#ff3344';
       ctx.fillRect(x + 4 * s, y - 35 * s, w - 8 * s, 5 * s);
       ctx.fillStyle = '#44ff44';
       ctx.fillRect(x + 4 * s, y - 35 * s, (boss.hp / boss.maxHp) * (w - 8 * s), 5 * s);
-      ctx.strokeStyle = '#fff'; ctx.lineWidth = 0.8; ctx.strokeRect(x + 4 * s, y - 35 * s, w - 8 * s, 5 * s);
     }
 
     // ========== ИГРОВАЯ ЛОГИКА ==========
@@ -1108,6 +804,7 @@
       upPressed = false;
       downPressed = false;
       updateUI();
+      if (navigator.vibrate) navigator.vibrate(isVictory ? 200 : 300);
     }
 
     function shootAtNearestEnemy() {
@@ -1118,24 +815,16 @@
       
       for (let e of enemies) {
         const dist = Math.hypot(e.x + e.width/2 - player.x, e.y + e.height/2 - player.y);
-        if (dist < minDist) {
-          minDist = dist;
-          target = e;
-        }
+        if (dist < minDist) { minDist = dist; target = e; }
       }
       
       if (bossActive && boss) {
         const dist = Math.hypot(boss.x + BOSS_WIDTH/2 - player.x, boss.y + BOSS_HEIGHT/2 - player.y);
-        if (dist < minDist) {
-          minDist = dist;
-          target = boss;
-        }
+        if (dist < minDist) { minDist = dist; target = boss; }
       }
       
       if (target) {
-        const aimX = target.x + (target.width || BOSS_WIDTH) / 2;
-        const aimY = target.y + (target.height || BOSS_HEIGHT) / 2;
-        fireBullet(aimX, aimY);
+        fireBullet(target.x + (target.width || BOSS_WIDTH)/2, target.y + (target.height || BOSS_HEIGHT)/2);
       } else {
         fireBullet(player.x + 200, player.y);
       }
@@ -1160,10 +849,7 @@
     }
 
     function startGame() {
-      if (gameOver) {
-        restartGame();
-        return;
-      }
+      if (gameOver) { restartGame(); return; }
       startOverlay.classList.add('hidden');
       gameStarted = true;
       gameActive = true;
@@ -1171,74 +857,43 @@
       debugDisplay.textContent = '🎮 ИГРА НАЧАЛАСЬ!';
     }
 
-    // Обработчики кнопок управления
+    // Кнопки управления
     btnUp.addEventListener('pointerdown', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
+      e.preventDefault(); e.stopPropagation();
       upPressed = true;
       if (!gameStarted && !gameOver) startGame();
-      vibrate(10);
     });
-    btnUp.addEventListener('pointerup', (e) => {
-      e.preventDefault();
-      upPressed = false;
-    });
+    btnUp.addEventListener('pointerup', () => { upPressed = false; });
     btnUp.addEventListener('pointerleave', () => { upPressed = false; });
-    btnUp.addEventListener('pointercancel', () => { upPressed = false; });
     
     btnDown.addEventListener('pointerdown', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
+      e.preventDefault(); e.stopPropagation();
       downPressed = true;
       if (!gameStarted && !gameOver) startGame();
-      vibrate(10);
     });
-    btnDown.addEventListener('pointerup', (e) => {
-      e.preventDefault();
-      downPressed = false;
-    });
+    btnDown.addEventListener('pointerup', () => { downPressed = false; });
     btnDown.addEventListener('pointerleave', () => { downPressed = false; });
-    btnDown.addEventListener('pointercancel', () => { downPressed = false; });
     
     btnFire.addEventListener('pointerdown', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      if (!gameStarted && !gameOver) {
-        startGame();
-        return;
-      }
-      if (gameOver) {
-        restartGame();
-        return;
-      }
-      if (gameActive) {
-        shootAtNearestEnemy();
-        vibrate(15);
-      }
+      e.preventDefault(); e.stopPropagation();
+      if (!gameStarted && !gameOver) { startGame(); return; }
+      if (gameOver) { restartGame(); return; }
+      if (gameActive) { shootAtNearestEnemy(); if (navigator.vibrate) navigator.vibrate(15); }
     });
 
-    // Тап по канвасу
     canvas.addEventListener('pointerdown', function(e) {
       e.preventDefault();
-      if (!gameStarted && !gameOver) {
-        startGame();
-        return;
-      }
-      if (gameOver) {
-        restartGame();
-        return;
-      }
+      if (!gameStarted && !gameOver) { startGame(); return; }
+      if (gameOver) { restartGame(); return; }
       if (!gameActive) return;
       
       const rect = canvas.getBoundingClientRect();
-      const scaleX = canvas.width / rect.width;
-      const scaleY = canvas.height / rect.height;
-      const tapX = (e.clientX - rect.left) * scaleX;
-      const tapY = (e.clientY - rect.top) * scaleY;
+      const tapX = (e.clientX - rect.left) * (canvas.width / rect.width);
+      const tapY = (e.clientY - rect.top) * (canvas.height / rect.height);
       
       if (player.shootCooldown <= 0) {
         fireBullet(tapX, tapY);
-        vibrate(10);
+        if (navigator.vibrate) navigator.vibrate(10);
       }
     });
 
@@ -1261,7 +916,7 @@
     function initEnemies() {
       enemies = [];
       enemiesSpawned = 0;
-      for (let i = 0; i < Math.min(totalEnemiesPerLevel, 8); i++) {
+      for (let i = 0; i < 8; i++) {
         enemies.push({
           x: canvas.width + 20 + i * 100 + Math.random() * 50,
           y: 30 + Math.random() * (canvas.height - 60),
@@ -1295,19 +950,14 @@
       bossHpDisplay.classList.add('active');
       bossHpDisplay.textContent = '💀 БОСС: ' + BALANCE.BOSS_HP;
       levelDisplay.textContent = '👹 БОСС';
-      vibrate(50);
+      if (navigator.vibrate) navigator.vibrate(100);
     }
 
     function checkLevelComplete() {
       if (gameOver) return false;
-      if (bossSpawned && bossDefeated) {
-        triggerGameOver(true);
-        return true;
-      }
+      if (bossSpawned && bossDefeated) { triggerGameOver(true); return true; }
       if (!bossActive && !bossSpawned && enemies.length === 0 && enemiesSpawned >= totalEnemiesPerLevel && gameActive) {
-        spawnBoss();
-        updateUI();
-        return true;
+        spawnBoss(); updateUI(); return true;
       }
       return false;
     }
@@ -1320,44 +970,29 @@
         return;
       }
 
-      const deltaTime = (currentTime - lastTime) / 1000;
+      const deltaTime = Math.min((currentTime - lastTime) / 1000, 0.1);
       lastTime = currentTime;
 
       timeLeft -= deltaTime;
-      if (timeLeft <= 0) {
-        timeLeft = 0;
-        triggerGameOver(false);
-        return;
-      }
+      if (timeLeft <= 0) { timeLeft = 0; triggerGameOver(false); return; }
 
-      if (upPressed) {
-        player.y -= player.speed;
-        if (player.y < 25) player.y = 25;
-      }
-      if (downPressed) {
-        player.y += player.speed;
-        if (player.y > canvas.height - 25) player.y = canvas.height - 25;
-      }
-      
+      if (upPressed) { player.y -= player.speed; if (player.y < 25) player.y = 25; }
+      if (downPressed) { player.y += player.speed; if (player.y > canvas.height - 25) player.y = canvas.height - 25; }
       if (player.shootCooldown > 0) player.shootCooldown--;
 
+      // Враги
       for (let e of enemies) {
         e.x -= e.speed;
         e.shootCooldown--;
         if (e.shootCooldown <= 0 && e.x < canvas.width - 20 && e.x > 0 && gameActive) {
-          const dx = player.x - e.x;
-          const dy = player.y - e.y;
+          const dx = player.x - e.x, dy = player.y - e.y;
           const dist = Math.hypot(dx, dy);
           if (dist > 0) {
             enemyBullets.push({
-              x: e.x,
-              y: e.y + e.height / 2,
-              vx: (dx / dist) * 4.5,
-              vy: (dy / dist) * 4.5,
-              radius: 5 * SCALE,
-              life: 120,
-              damage: BALANCE.ENEMY_BULLET_DMG,
-              isBossBullet: false
+              x: e.x, y: e.y + e.height/2,
+              vx: (dx/dist) * 4.5, vy: (dy/dist) * 4.5,
+              radius: 5 * SCALE, life: 120,
+              damage: BALANCE.ENEMY_BULLET_DMG, isBossBullet: false
             });
             e.shootCooldown = e.shootDelay;
           }
@@ -1365,47 +1000,33 @@
       }
       enemies = enemies.filter(e => e.x > -80);
 
+      // Босс
       if (bossActive && boss) {
         boss.y += boss.speed * boss.direction;
-        if (boss.y < 25) {
-          boss.y = 25;
-          boss.direction = 1;
-        }
-        if (boss.y + BOSS_HEIGHT > canvas.height - 25) {
-          boss.y = canvas.height - 25 - BOSS_HEIGHT;
-          boss.direction = -1;
-        }
+        if (boss.y < 25) { boss.y = 25; boss.direction = 1; }
+        if (boss.y + BOSS_HEIGHT > canvas.height - 25) { boss.y = canvas.height - 25 - BOSS_HEIGHT; boss.direction = -1; }
         
         boss.shootCooldown--;
         if (boss.shootCooldown <= 0 && boss.x > 50 && gameActive) {
-          const dx = player.x - boss.x;
-          const dy = player.y - (boss.y + BOSS_HEIGHT / 2);
+          const dx = player.x - boss.x, dy = player.y - (boss.y + BOSS_HEIGHT/2);
           const dist = Math.hypot(dx, dy);
           if (dist > 0) {
             enemyBullets.push({
-              x: boss.x,
-              y: boss.y + BOSS_HEIGHT / 2,
-              vx: (dx / dist) * 4.5,
-              vy: (dy / dist) * 4.5,
-              radius: 16 * SCALE,
-              life: 160,
-              damage: BALANCE.BOSS_BULLET_DMG,
-              isBossBullet: true
+              x: boss.x, y: boss.y + BOSS_HEIGHT/2,
+              vx: (dx/dist) * 4.5, vy: (dy/dist) * 4.5,
+              radius: 16 * SCALE, life: 160,
+              damage: BALANCE.BOSS_BULLET_DMG, isBossBullet: true
             });
             boss.shootCooldown = boss.shootDelay;
           }
         }
       }
 
-      for (let b of playerBullets) {
-        b.x += b.vx;
-        b.y += b.vy;
-        b.life--;
-      }
-      playerBullets = playerBullets.filter(b => 
-        b.life > 0 && b.x < canvas.width + 30 && b.x > -30 && b.y > -30 && b.y < canvas.height + 30
-      );
+      // Пули игрока
+      for (let b of playerBullets) { b.x += b.vx; b.y += b.vy; b.life--; }
+      playerBullets = playerBullets.filter(b => b.life > 0 && b.x < canvas.width + 30 && b.x > -30);
 
+      // Попадания
       for (let i = playerBullets.length - 1; i >= 0; i--) {
         const b = playerBullets[i];
         let hit = false;
@@ -1413,79 +1034,52 @@
         for (let j = enemies.length - 1; j >= 0; j--) {
           const e = enemies[j];
           if (b.x > e.x && b.x < e.x + e.width && b.y > e.y && b.y < e.y + e.height) {
-            e.hp -= b.damage;
-            playerBullets.splice(i, 1);
-            hit = true;
-            if (e.hp <= 0) {
-              enemies.splice(j, 1);
-              kills++;
-              vibrate(20);
-            }
+            e.hp -= b.damage; playerBullets.splice(i, 1); hit = true;
+            if (e.hp <= 0) { enemies.splice(j, 1); kills++; if (navigator.vibrate) navigator.vibrate(20); }
             break;
           }
         }
         
         if (!hit && bossActive && boss) {
           if (b.x > boss.x && b.x < boss.x + BOSS_WIDTH && b.y > boss.y && b.y < boss.y + BOSS_HEIGHT) {
-            boss.hp -= b.damage;
-            playerBullets.splice(i, 1);
-            hit = true;
-            vibrate(25);
+            boss.hp -= b.damage; playerBullets.splice(i, 1); hit = true;
+            if (navigator.vibrate) navigator.vibrate(25);
             bossHpDisplay.textContent = '💀 БОСС: ' + Math.max(0, boss.hp);
             if (boss.hp <= 0) {
-              bossDefeated = true;
-              bossActive = false;
-              kills += 5;
+              bossDefeated = true; bossActive = false; kills += 5;
               bossHpDisplay.classList.remove('active');
-              vibrate(100);
-              checkLevelComplete();
-              updateUI();
-              return;
+              if (navigator.vibrate) navigator.vibrate(150);
+              checkLevelComplete(); updateUI(); return;
             }
           }
         }
       }
 
-      for (let b of enemyBullets) {
-        b.x += b.vx;
-        b.y += b.vy;
-        b.life--;
-      }
-      enemyBullets = enemyBullets.filter(b => 
-        b.life > 0 && b.x < canvas.width + 30 && b.x > -60 && b.y > -30 && b.y < canvas.height + 30
-      );
+      // Вражеские пули
+      for (let b of enemyBullets) { b.x += b.vx; b.y += b.vy; b.life--; }
+      enemyBullets = enemyBullets.filter(b => b.life > 0);
 
-      const px = player.x - 14 * SCALE;
-      const py = player.y - 18 * SCALE;
-      const pw = player.width;
-      const ph = player.height;
+      const px = player.x - 14 * SCALE, py = player.y - 18 * SCALE;
+      const pw = player.width, ph = player.height;
 
       for (let i = enemyBullets.length - 1; i >= 0; i--) {
         const b = enemyBullets[i];
         if (b.x > px && b.x < px + pw && b.y > py && b.y < py + ph) {
-          player.hp -= b.damage;
-          enemyBullets.splice(i, 1);
-          vibrate(30);
-          if (player.hp <= 0) {
-            player.hp = 0;
-            triggerGameOver(false);
-            return;
-          }
-          break;
+          player.hp -= b.damage; enemyBullets.splice(i, 1);
+          if (navigator.vibrate) navigator.vibrate(40);
+          if (player.hp <= 0) { player.hp = 0; triggerGameOver(false); return; }
         }
       }
 
       for (let e of enemies) {
         if (e.x < px + pw && e.x + e.width > px && e.y < py + ph && e.y + e.height > py) {
-          triggerGameOver(false);
-          return;
+          triggerGameOver(false); return;
         }
       }
 
       if (bossActive && boss) {
         if (boss.x < px + pw && boss.x + BOSS_WIDTH > px && boss.y < py + ph && boss.y + BOSS_HEIGHT > py) {
-          triggerGameOver(false);
-          return;
+          triggerGameOver(false); return;
         }
       }
 
@@ -1514,10 +1108,7 @@
       }
       
       hpDisplay.textContent = '❤️ ' + Math.max(0, Math.floor(player.hp));
-      
-      if (!bossActive && !bossSpawned) {
-        levelDisplay.textContent = 'УРОВЕНЬ ' + level;
-      }
+      if (!bossActive && !bossSpawned) levelDisplay.textContent = 'УРОВЕНЬ ' + level;
     }
 
     function draw() {
@@ -1530,131 +1121,52 @@
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       
       ctx.setLineDash([25, 35]);
-      ctx.strokeStyle = '#5a7a5a';
-      ctx.lineWidth = 2.5;
-      ctx.beginPath();
-      ctx.moveTo(0, canvas.height / 2);
-      ctx.lineTo(canvas.width, canvas.height / 2);
-      ctx.stroke();
+      ctx.strokeStyle = '#5a7a5a'; ctx.lineWidth = 2.5;
+      ctx.beginPath(); ctx.moveTo(0, canvas.height/2); ctx.lineTo(canvas.width, canvas.height/2); ctx.stroke();
       ctx.setLineDash([]);
       
-      ctx.strokeStyle = '#6a8a6a';
-      ctx.lineWidth = 3;
-      ctx.beginPath();
-      ctx.moveTo(0, 15);
-      ctx.lineTo(canvas.width, 15);
-      ctx.moveTo(0, canvas.height - 15);
-      ctx.lineTo(canvas.width, canvas.height - 15);
-      ctx.stroke();
-
-      for (let i = 0; i < enemies.length; i++) {
-        drawEnemyCar(enemies[i], i);
-      }
-      if (bossActive && boss) {
-        drawBossTank();
-      }
+      for (let i = 0; i < enemies.length; i++) drawEnemyCar(enemies[i], i);
+      if (bossActive && boss) drawBossTank();
       drawPlayerJeep();
       
       for (let b of playerBullets) {
-        ctx.fillStyle = '#ffdd44';
-        ctx.shadowColor = '#ffaa00';
-        ctx.shadowBlur = 16;
-        ctx.beginPath();
-        ctx.arc(b.x, b.y, b.radius, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = '#fff';
-        ctx.beginPath();
-        ctx.arc(b.x, b.y, b.radius * 0.5, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.shadowBlur = 0;
+        ctx.fillStyle = '#ffdd44'; ctx.shadowColor = '#ffaa00'; ctx.shadowBlur = 16;
+        ctx.beginPath(); ctx.arc(b.x, b.y, b.radius, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(b.x, b.y, b.radius*0.5, 0, Math.PI*2); ctx.fill();
       }
+      ctx.shadowBlur = 0;
       
       for (let b of enemyBullets) {
         ctx.fillStyle = b.isBossBullet ? '#ff4400' : '#ff6666';
         ctx.shadowColor = b.isBossBullet ? '#ff2200' : '#ff0000';
         ctx.shadowBlur = b.isBossBullet ? 30 : 12;
-        ctx.beginPath();
-        ctx.arc(b.x, b.y, b.radius, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = b.isBossBullet ? '#ffaa00' : '#ffaaaa';
-        ctx.beginPath();
-        ctx.arc(b.x, b.y, b.radius * 0.5, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.shadowBlur = 0;
+        ctx.beginPath(); ctx.arc(b.x, b.y, b.radius, 0, Math.PI*2); ctx.fill();
       }
+      ctx.shadowBlur = 0;
     }
 
     function restartGame() {
-      timeLeft = GAME_DURATION;
-      kills = 0;
-      gameActive = false;
-      gameOver = false;
-      victory = false;
-      level = 1;
-      bossActive = false;
-      bossDefeated = false;
-      bossSpawned = false;
-      boss = null;
-      player.y = canvas.height / 2;
-      player.hp = BALANCE.PLAYER_HP;
-      player.shootCooldown = 0;
-      playerBullets = [];
-      enemyBullets = [];
-      enemies = [];
-      totalEnemiesPerLevel = 10;
-      enemiesSpawned = 0;
+      timeLeft = GAME_DURATION; kills = 0;
+      gameActive = false; gameOver = false; victory = false;
+      level = 1; bossActive = false; bossDefeated = false; bossSpawned = false; boss = null;
+      player.y = canvas.height/2; player.hp = BALANCE.PLAYER_HP; player.shootCooldown = 0;
+      playerBullets = []; enemyBullets = []; enemies = [];
+      totalEnemiesPerLevel = 10; enemiesSpawned = 0;
       
       bossHpDisplay.classList.remove('active');
       levelDisplay.textContent = 'УРОВЕНЬ 1';
-      winOverlay.classList.remove('show');
-      loseOverlay.classList.remove('show');
-      startOverlay.classList.remove('hidden');
-      gameStarted = false;
+      winOverlay.classList.remove('show'); loseOverlay.classList.remove('show');
+      startOverlay.classList.remove('hidden'); gameStarted = false;
+      upPressed = false; downPressed = false;
       
-      upPressed = false;
-      downPressed = false;
-      
-      initEnemies();
-      updateUI();
+      initEnemies(); updateUI();
       debugDisplay.textContent = '👆 ТАПНИ ПО ЭКРАНУ ДЛЯ СТАРТА';
-      vibrate(50);
+      if (navigator.vibrate) navigator.vibrate(50);
     }
 
-    winOverlay.addEventListener('pointerdown', (e) => {
-      e.preventDefault();
-      restartGame();
-    });
-    
-    loseOverlay.addEventListener('pointerdown', (e) => {
-      e.preventDefault();
-      restartGame();
-    });
-
-    restartBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      restartGame();
-    });
-    
-    restartBtn.addEventListener('pointerdown', (e) => {
-      e.preventDefault();
-      restartGame();
-    });
-
-    // Обработчик клавиши F для полноэкранного режима
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'f' || e.key === 'F') {
-        e.preventDefault();
-        toggleFullscreen();
-      }
-      if (e.key === 'Escape' && isFullscreen) {
-        // Не предотвращаем стандартное поведение Escape
-        setTimeout(() => {
-          if (!document.fullscreenElement) {
-            handleFullscreenChange();
-          }
-        }, 100);
-      }
-    });
+    winOverlay.addEventListener('pointerdown', (e) => { e.preventDefault(); restartGame(); });
+    loseOverlay.addEventListener('pointerdown', (e) => { e.preventDefault(); restartGame(); });
+    restartBtn.addEventListener('pointerdown', (e) => { e.preventDefault(); restartGame(); });
 
     function gameLoop(currentTime) {
       update(currentTime);
@@ -1662,8 +1174,7 @@
       requestAnimationFrame(gameLoop);
     }
 
-    initEnemies();
-    updateUI();
+    initEnemies(); updateUI();
     requestAnimationFrame(gameLoop);
     debugDisplay.textContent = '👆 ТАПНИ ПО ЭКРАНУ ДЛЯ СТАРТА';
   })();
