@@ -1,0 +1,1183 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>PDA · GANGSTA DRIVE · PC EDITION</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; }
+    body {
+      background: #0b0f1a;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Courier New', monospace;
+      overflow: hidden;
+    }
+    .pda {
+      width: 95vw;
+      max-width: 1200px;
+      height: 90vh;
+      max-height: 800px;
+      background: #1e2636;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.8), inset 0 0 0 3px #4c5a72;
+      padding: 16px 14px 20px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    .screen {
+      flex: 1;
+      background: #0f121c;
+      border-radius: 16px;
+      padding: 10px 12px 12px;
+      box-shadow: inset 0 0 30px #00000088, 0 0 0 2px #39475e;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+    }
+    .status-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 4px 8px 8px 8px;
+      border-bottom: 2px solid #2f3d54;
+      color: #a3c0e0;
+      font-size: 18px;
+      letter-spacing: 2px;
+      font-weight: bold;
+      text-shadow: 0 0 8px #00a6ff60;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .status-bar .delta { display: flex; gap: 8px; }
+    .status-bar .delta span {
+      background: #1d2a3c;
+      padding: 2px 10px;
+      border-radius: 8px;
+      color: #9bc9ff;
+    }
+    .timer {
+      background: #1d2a3c;
+      padding: 2px 14px;
+      border-radius: 14px;
+      color: #f2c94c;
+      font-size: 20px;
+      box-shadow: inset 0 0 12px #f2c94c30;
+    }
+    #gameCanvas {
+      flex: 1;
+      width: 100%;
+      background: #2a3a4a;
+      border-radius: 14px;
+      display: block;
+      margin: 6px 0;
+      box-shadow: inset 0 0 50px #000000aa;
+      image-rendering: auto;
+      touch-action: none;
+      cursor: crosshair;
+    }
+    .footer-panel {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 8px 4px;
+      border-top: 2px solid #2f3d54;
+      color: #7a93b0;
+      font-size: 18px;
+      font-weight: bold;
+      letter-spacing: 2px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .footer-panel .left { display: flex; gap: 16px; }
+    .footer-panel .left span {
+      background: #1d2a3c;
+      padding: 2px 12px;
+      border-radius: 12px;
+      color: #b6d4f0;
+    }
+    .footer-panel .kills {
+      background: #2a1f2a;
+      padding: 2px 18px;
+      border-radius: 30px;
+      color: #ff6b7a;
+      font-size: 22px;
+      box-shadow: 0 0 16px #ff3b4a60;
+    }
+    .sub-mission {
+      text-align: center;
+      font-size: 14px;
+      color: #6b8aaa;
+      background: #101724;
+      padding: 8px 0 6px;
+      border-radius: 40px;
+      margin: 8px 0 0;
+      letter-spacing: 2px;
+      font-weight: bold;
+      text-transform: uppercase;
+      border: 1px solid #2e405a;
+      box-shadow: inset 0 0 12px #1f3144;
+    }
+    .sub-mission strong { color: #f2c94c; font-weight: 900; }
+    .restart-btn {
+      background: #1f2b3d;
+      border: 2px solid #3f5470;
+      color: #c0d8f0;
+      font-size: 20px;
+      font-weight: bold;
+      padding: 6px 24px;
+      border-radius: 40px;
+      margin: 6px auto 0;
+      display: block;
+      font-family: 'Courier New', monospace;
+      cursor: pointer;
+      box-shadow: 0 0 0 1px #0b111e, inset 0 0 16px #2c405c;
+      transition: 0.15s;
+      letter-spacing: 3px;
+    }
+    .restart-btn:hover {
+      background: #2a3a4d;
+      border-color: #6a8aaf;
+      box-shadow: 0 0 20px #4a6a9a;
+    }
+    .restart-btn:active {
+      background: #2f405a;
+      border-color: #7a9bc0;
+      transform: scale(0.96);
+    }
+    .corner-delta {
+      position: absolute;
+      color: #3f5777;
+      font-size: 14px;
+      opacity: 0.3;
+      pointer-events: none;
+    }
+    .top-left { top: 22px; left: 20px; }
+    .bottom-right { bottom: 22px; right: 20px; }
+    .hp-bar {
+      background: #1d2a3c;
+      padding: 2px 14px;
+      border-radius: 14px;
+      color: #ff6b7a;
+      font-size: 16px;
+    }
+    .controls-hint {
+      font-size: 12px;
+      color: #5a7a9a;
+      text-align: center;
+      padding: 3px 0;
+      letter-spacing: 1.5px;
+    }
+    .level-display {
+      background: #1d2a3c;
+      padding: 2px 16px;
+      border-radius: 14px;
+      color: #9bc9ff;
+      font-size: 16px;
+    }
+    .boss-hp {
+      background: #2a1a1a;
+      padding: 2px 14px;
+      border-radius: 14px;
+      color: #ff8844;
+      font-size: 16px;
+      display: none;
+    }
+    .boss-hp.active { display: inline-block; }
+    .debug {
+      color: #0f0;
+      font-size: 12px;
+      text-align: center;
+      background: #000;
+      padding: 3px;
+      margin-top: 3px;
+      border-radius: 6px;
+      font-family: monospace;
+    }
+
+    .win-overlay, .lose-overlay, .start-overlay {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      display: none;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      pointer-events: none;
+      z-index: 200;
+    }
+    .win-overlay { background: rgba(0, 0, 0, 0.7); }
+    .win-overlay.show { display: flex; }
+    .win-overlay .main {
+      font-family: 'Courier New', monospace;
+      font-size: 80px;
+      font-weight: 900;
+      color: #ffdd00;
+      text-shadow: 0 0 60px #ffdd00, 0 0 120px #ffdd00, 0 0 180px #ff8800, 0 0 300px #ff4400;
+      letter-spacing: 12px;
+      text-align: center;
+      animation: winPulse 0.8s infinite alternate;
+    }
+    .win-overlay .sub {
+      font-family: 'Courier New', monospace;
+      font-size: 28px;
+      color: #fff;
+      opacity: 0.8;
+      margin-top: 20px;
+      letter-spacing: 6px;
+      text-shadow: 0 0 30px #fff;
+    }
+    @keyframes winPulse {
+      0% { transform: scale(1); opacity: 0.95; }
+      100% { transform: scale(1.02); opacity: 1; }
+    }
+
+    .lose-overlay { background: rgba(139, 0, 0, 0.75); }
+    .lose-overlay.show { display: flex; }
+    .lose-overlay .main {
+      font-family: 'Courier New', monospace;
+      font-size: 70px;
+      font-weight: 900;
+      color: #ff2222;
+      text-shadow: 0 0 60px #ff0000, 0 0 120px #ff0000, 0 0 180px #cc0000, 0 0 300px #880000;
+      letter-spacing: 10px;
+      text-align: center;
+      animation: loseShake 0.12s infinite alternate;
+    }
+    .lose-overlay .sub {
+      font-family: 'Courier New', monospace;
+      font-size: 22px;
+      color: #ffaaaa;
+      opacity: 0.9;
+      margin-top: 20px;
+      letter-spacing: 5px;
+      text-shadow: 0 0 20px #ff0000;
+    }
+    @keyframes loseShake {
+      0% { transform: translateX(-4px); }
+      100% { transform: translateX(4px); }
+    }
+
+    .start-overlay {
+      display: flex;
+      background: transparent;
+      animation: pulse 1s infinite alternate;
+      z-index: 100;
+    }
+    .start-overlay.hidden { display: none; }
+    .start-overlay .main {
+      font-family: 'Courier New', monospace;
+      font-size: 100px;
+      font-weight: 900;
+      color: #00ff88;
+      text-shadow: 0 0 60px #00ff88, 0 0 120px #00ff88, 0 0 180px #00aa44;
+      letter-spacing: 10px;
+    }
+    .start-overlay .sub {
+      font-family: 'Courier New', monospace;
+      font-size: 22px;
+      color: #fff;
+      opacity: 0.7;
+      margin-top: 15px;
+      letter-spacing: 5px;
+    }
+    @keyframes pulse {
+      0% { transform: scale(1); opacity: 0.9; }
+      100% { transform: scale(1.03); opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+<div class="pda">
+  <div class="screen">
+    <div class="corner-delta top-left">Δ = Δ</div>
+    <div class="corner-delta bottom-right">Δ = Δ</div>
+
+    <div class="start-overlay" id="startOverlay">
+      <div class="main">СТАРТ</div>
+      <div class="sub">нажми любую клавишу</div>
+    </div>
+    <div class="win-overlay" id="winOverlay">
+      <div class="main">🏆 ТЫ ПОБЕДИЛ!</div>
+      <div class="sub">нажми ENTER для рестарта</div>
+    </div>
+    <div class="lose-overlay" id="loseOverlay">
+      <div class="main">💀 ТЫ ПРОИГРАЛ</div>
+      <div class="sub">нажми ENTER для рестарта</div>
+    </div>
+
+    <div class="status-bar">
+      <div class="delta"><span>Δ</span><span>=</span><span>Δ</span></div>
+      <div class="timer" id="timerDisplay">⏱️ 03:00</div>
+      <div class="level-display" id="levelDisplay">УРОВЕНЬ 1</div>
+      <div class="hp-bar" id="hpDisplay">❤️ 100</div>
+    </div>
+
+    <canvas id="gameCanvas" width="1100" height="550"></canvas>
+
+    <div class="footer-panel">
+      <div class="left">
+        <span>🎯</span>
+        <span id="killCounter">0/10</span>
+      </div>
+      <div class="kills" id="enemyCountDisplay">🚗 0/10</div>
+      <div class="boss-hp" id="bossHpDisplay">💀 БОСС: 5</div>
+    </div>
+    <div class="controls-hint">↑ ↓ или W S — ДВИЖЕНИЕ | ЛКМ/ПКМ — СТРЕЛЬБА | ENTER — РЕСТАРТ</div>
+    <div class="sub-mission">
+      <span>⚡ убей всех врагов за <strong>3</strong> мин ⚡</span>
+    </div>
+    <div class="debug" id="debugDisplay">⚡ КЛИКНИ ПО ЭКРАНУ ⚡</div>
+  </div>
+  <button class="restart-btn" id="restartBtn">⟳ РЕСТАРТ</button>
+</div>
+
+<script>
+  (function() {
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const timerDisplay = document.getElementById('timerDisplay');
+    const killCounter = document.getElementById('killCounter');
+    const enemyCountDisplay = document.getElementById('enemyCountDisplay');
+    const hpDisplay = document.getElementById('hpDisplay');
+    const levelDisplay = document.getElementById('levelDisplay');
+    const bossHpDisplay = document.getElementById('bossHpDisplay');
+    const restartBtn = document.getElementById('restartBtn');
+    const debugDisplay = document.getElementById('debugDisplay');
+    const startOverlay = document.getElementById('startOverlay');
+    const winOverlay = document.getElementById('winOverlay');
+    const loseOverlay = document.getElementById('loseOverlay');
+
+    const GAME_DURATION = 180;
+    let timeLeft = GAME_DURATION;
+    let kills = 0;
+    let gameActive = true;
+    let gameOver = false;
+    let victory = false;
+    let level = 1;
+    let bossActive = false;
+    let bossDefeated = false;
+    let totalEnemiesPerLevel = 10;
+    let enemiesSpawned = 0;
+    let bossSpawned = false;
+    let gameStarted = false;
+    let frameCount = 0;
+
+    const BALANCE = {
+      PLAYER_HP: 100,
+      ENEMY_HP: 1,
+      BOSS_HP: 5,
+      ENEMY_BULLET_DMG: 5,
+      BOSS_BULLET_DMG: 50,
+      PLAYER_BULLET_DMG: 1
+    };
+
+    const SCALE = 1.5; // Масштаб для ПК
+
+    const player = {
+      x: 100, y: canvas.height / 2,
+      width: 70 * SCALE, height: 38 * SCALE,
+      speed: 6 * SCALE,
+      hp: BALANCE.PLAYER_HP, maxHp: BALANCE.PLAYER_HP,
+      shootCooldown: 0, shootDelay: 10
+    };
+
+    let playerBullets = [];
+    let enemies = [];
+    const ENEMY_WIDTH = 64 * SCALE;
+    const ENEMY_HEIGHT = 32 * SCALE;
+
+    let boss = null;
+    const BOSS_WIDTH = 110 * SCALE;
+    const BOSS_HEIGHT = 60 * SCALE;
+
+    let enemyBullets = [];
+    let upPressed = false;
+    let downPressed = false;
+
+    canvas.setAttribute('tabindex', '0');
+    canvas.focus();
+
+    // ========== КОЛЁСА ==========
+    function drawWheel(cx, cy, r, isOffroad) {
+      ctx.fillStyle = '#1a1a1a';
+      ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = '#333'; ctx.lineWidth = 2; ctx.stroke();
+      
+      if (isOffroad) {
+        ctx.strokeStyle = '#2a2a2a'; ctx.lineWidth = 2.5;
+        const treads = 10;
+        for (let i = 0; i < treads; i++) {
+          const angle = (i / treads) * Math.PI * 2;
+          ctx.beginPath();
+          ctx.moveTo(cx + Math.cos(angle) * (r - 3), cy + Math.sin(angle) * (r - 3));
+          ctx.lineTo(cx + Math.cos(angle) * r, cy + Math.sin(angle) * r);
+          ctx.stroke();
+        }
+      }
+      
+      ctx.fillStyle = '#777';
+      ctx.beginPath(); ctx.arc(cx, cy, r * 0.6, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = '#999'; ctx.lineWidth = 1.2; ctx.stroke();
+      
+      ctx.strokeStyle = '#aaa'; ctx.lineWidth = 1.5;
+      const spokes = 5;
+      const angleStep = (Math.PI * 2) / spokes;
+      const time = frameCount * 0.08;
+      for (let i = 0; i < spokes; i++) {
+        const angle = i * angleStep + time;
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.lineTo(cx + Math.cos(angle) * r * 0.55, cy + Math.sin(angle) * r * 0.55);
+        ctx.stroke();
+      }
+      
+      ctx.fillStyle = '#bbb';
+      ctx.beginPath(); ctx.arc(cx, cy, r * 0.2, 0, Math.PI * 2); ctx.fill();
+    }
+
+    // ========== СТРЕЛОК ==========
+    function drawGunnerOnRoof(cx, roofTop) {
+      const s = SCALE;
+      const gunnerY = roofTop - 16 * s;
+      
+      // Тело
+      ctx.fillStyle = '#4a6741';
+      ctx.fillRect(cx - 7 * s, gunnerY + 8 * s, 14 * s, 14 * s);
+      
+      // Разгрузка
+      ctx.fillStyle = '#5a7a4a';
+      ctx.fillRect(cx - 5 * s, gunnerY + 10 * s, 10 * s, 5 * s);
+      
+      // Голова
+      ctx.fillStyle = '#d4b896';
+      ctx.beginPath(); ctx.arc(cx, gunnerY + 4 * s, 6 * s, 0, Math.PI * 2); ctx.fill();
+      
+      // Кепка
+      ctx.fillStyle = '#2a3a1a';
+      ctx.beginPath(); ctx.ellipse(cx, gunnerY + 1 * s, 8 * s, 4 * s, 0, Math.PI, 0); ctx.fill();
+      ctx.fillRect(cx - 8 * s, gunnerY - 1 * s, 16 * s, 3 * s);
+      
+      // Очки
+      ctx.fillStyle = '#111';
+      ctx.fillRect(cx - 5 * s, gunnerY + 2 * s, 4 * s, 3 * s);
+      ctx.fillRect(cx + 1 * s, gunnerY + 2 * s, 4 * s, 3 * s);
+      ctx.strokeStyle = '#111'; ctx.lineWidth = 0.8;
+      ctx.beginPath(); ctx.moveTo(cx - 1 * s, gunnerY + 3 * s); ctx.lineTo(cx + 1 * s, gunnerY + 3 * s); ctx.stroke();
+      
+      // АВТОМАТ
+      const gunX = cx + 5 * s;
+      const gunY = gunnerY + 8 * s;
+      
+      ctx.fillStyle = '#333';
+      ctx.fillRect(gunX, gunY - 2 * s, 18 * s, 3 * s);
+      ctx.strokeStyle = '#555'; ctx.lineWidth = 0.8;
+      ctx.strokeRect(gunX, gunY - 2 * s, 18 * s, 3 * s);
+      
+      ctx.fillStyle = '#8B4513';
+      ctx.fillRect(gunX, gunY - 1 * s, 8 * s, 3 * s);
+      
+      ctx.fillStyle = '#444';
+      ctx.beginPath();
+      ctx.moveTo(gunX + 10 * s, gunY + 1 * s);
+      ctx.lineTo(gunX + 12 * s, gunY + 6 * s);
+      ctx.lineTo(gunX + 15 * s, gunY + 6 * s);
+      ctx.lineTo(gunX + 13 * s, gunY + 1 * s);
+      ctx.closePath(); ctx.fill();
+      
+      ctx.fillStyle = '#8B4513';
+      ctx.fillRect(gunX + 17 * s, gunY - 3 * s, 6 * s, 4 * s);
+      ctx.fillRect(gunX + 10 * s, gunY + 1 * s, 3 * s, 5 * s);
+      
+      ctx.fillStyle = '#d4b896';
+      ctx.fillRect(gunX, gunY + 1 * s, 5 * s, 3 * s);
+      
+      if (player.shootCooldown > player.shootDelay - 3) {
+        ctx.fillStyle = '#ffdd00';
+        ctx.shadowColor = '#ffaa00';
+        ctx.shadowBlur = 14;
+        ctx.beginPath();
+        ctx.moveTo(gunX + 18 * s, gunY);
+        ctx.lineTo(gunX + 26 * s + Math.random() * 5, gunY - 3 * s);
+        ctx.lineTo(gunX + 26 * s + Math.random() * 5, gunY + 4 * s);
+        ctx.lineTo(gunX + 18 * s, gunY + 1 * s);
+        ctx.closePath(); ctx.fill();
+        ctx.shadowBlur = 0;
+      }
+    }
+
+    // ========== ДЖИП ИГРОКА ==========
+    function drawPlayerJeep() {
+      const s = SCALE;
+      const x = player.x - 16 * s, y = player.y - 22 * s;
+      const w = player.width, h = player.height;
+      const cx = x + w/2, cy = y + h/2;
+      
+      ctx.shadowColor = '#0066ff';
+      ctx.shadowBlur = 30;
+
+      // Тень
+      ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.shadowBlur = 0;
+      ctx.fillRect(x + 5 * s, y + h - 5 * s, w - 10 * s, 8 * s);
+
+      // Кузов
+      ctx.fillStyle = '#1a3a1a';
+      ctx.shadowColor = '#0066ff'; ctx.shadowBlur = 30;
+      ctx.beginPath();
+      ctx.moveTo(x + 8 * s, y + h - 8 * s);
+      ctx.lineTo(x + 3 * s, y + h * 0.5);
+      ctx.lineTo(x + 5 * s, y + h * 0.3);
+      ctx.lineTo(x + w * 0.18, y + 2 * s);
+      ctx.lineTo(x + w * 0.82, y + 2 * s);
+      ctx.lineTo(x + w - 5 * s, y + h * 0.3);
+      ctx.lineTo(x + w - 3 * s, y + h * 0.5);
+      ctx.lineTo(x + w - 8 * s, y + h - 8 * s);
+      ctx.closePath(); ctx.fill();
+      
+      ctx.strokeStyle = '#3a6a3a'; ctx.lineWidth = 2.5;
+      ctx.stroke();
+
+      // Камуфляж
+      ctx.fillStyle = '#2a4a2a';
+      ctx.fillRect(x + 10 * s, y + 12 * s, 16 * s, 10 * s);
+      ctx.fillRect(x + w - 26 * s, y + 10 * s, 14 * s, 12 * s);
+      ctx.fillRect(x + w/2 - 8 * s, y + 8 * s, 18 * s, 9 * s);
+      ctx.fillStyle = '#0a2a0a';
+      ctx.fillRect(x + 18 * s, y + h - 18 * s, 14 * s, 8 * s);
+      ctx.fillRect(x + w - 24 * s, y + h - 16 * s, 16 * s, 6 * s);
+
+      // Крыша и стёкла
+      ctx.fillStyle = '#1a2a3a';
+      ctx.beginPath();
+      ctx.moveTo(x + w * 0.24, y + 5 * s);
+      ctx.lineTo(x + w * 0.76, y + 5 * s);
+      ctx.lineTo(x + w * 0.8, y + h * 0.35);
+      ctx.lineTo(x + w * 0.2, y + h * 0.35);
+      ctx.closePath(); ctx.fill();
+      ctx.strokeStyle = '#3a6a3a'; ctx.lineWidth = 2; ctx.stroke();
+
+      ctx.strokeStyle = '#3a6a3a'; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.moveTo(cx, y + 5 * s); ctx.lineTo(cx, y + h * 0.33); ctx.stroke();
+
+      ctx.fillStyle = 'rgba(255,255,255,0.12)';
+      ctx.fillRect(x + w * 0.28, y + 7 * s, w * 0.18, h * 0.22);
+
+      // Дуги безопасности
+      ctx.strokeStyle = '#4a6a4a'; ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(x + w * 0.15, y + h * 0.32);
+      ctx.lineTo(x + w * 0.15, y + 3 * s);
+      ctx.lineTo(x + w * 0.24, y + 3 * s);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(x + w * 0.85, y + h * 0.32);
+      ctx.lineTo(x + w * 0.85, y + 3 * s);
+      ctx.lineTo(x + w * 0.76, y + 3 * s);
+      ctx.stroke();
+
+      // Стрелок
+      drawGunnerOnRoof(cx, y);
+
+      // Фары
+      ctx.fillStyle = '#ffee88';
+      ctx.shadowColor = '#ffcc00'; ctx.shadowBlur = 14;
+      ctx.beginPath(); ctx.arc(x + w - 10 * s, y + h * 0.28, 6 * s, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#fff';
+      ctx.beginPath(); ctx.arc(x + w - 10 * s, y + h * 0.28, 2.5 * s, 0, Math.PI * 2); ctx.fill();
+      ctx.shadowBlur = 0;
+
+      ctx.fillStyle = '#ff3333'; ctx.shadowColor = '#ff0000'; ctx.shadowBlur = 10;
+      ctx.fillRect(x + 1 * s, y + h * 0.32, 5 * s, 8 * s);
+      ctx.shadowBlur = 0;
+
+      // Бамперы
+      ctx.fillStyle = '#555';
+      ctx.fillRect(x + w - 4 * s, y + h * 0.5, 5 * s, h * 0.2);
+      ctx.fillRect(x - 1 * s, y + h * 0.5, 5 * s, h * 0.2);
+      
+      ctx.strokeStyle = '#666'; ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.moveTo(x + w - 3 * s, y + h * 0.45);
+      ctx.lineTo(x + w + 3 * s, y + h * 0.4);
+      ctx.lineTo(x + w + 3 * s, y + h * 0.65);
+      ctx.lineTo(x + w - 3 * s, y + h * 0.7);
+      ctx.stroke();
+
+      // Колёса
+      const wheelRadius = h * 0.26;
+      const wheelY = y + h - wheelRadius - 3 * s;
+      drawWheel(x + w * 0.22, wheelY, wheelRadius, true);
+      drawWheel(x + w * 0.78, wheelY, wheelRadius, true);
+
+      // Запаска
+      ctx.fillStyle = '#222';
+      ctx.beginPath(); ctx.arc(cx - 10 * s, y - 3 * s, 8 * s, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = '#444'; ctx.lineWidth = 1.5; ctx.stroke();
+      ctx.fillStyle = '#777';
+      ctx.beginPath(); ctx.arc(cx - 10 * s, y - 3 * s, 4.5 * s, 0, Math.PI * 2); ctx.fill();
+
+      // Лебёдка
+      ctx.fillStyle = '#444';
+      ctx.fillRect(x + w - 8 * s, y + 3 * s, 6 * s, 5 * s);
+      ctx.strokeStyle = '#666'; ctx.lineWidth = 1; ctx.strokeRect(x + w - 8 * s, y + 3 * s, 6 * s, 5 * s);
+
+      ctx.shadowBlur = 0;
+
+      // Надпись
+      ctx.fillStyle = '#fff';
+      ctx.font = `bold ${12 * s}px "Courier New", monospace`;
+      ctx.textAlign = 'center';
+      ctx.shadowColor = '#000';
+      ctx.shadowBlur = 5;
+      ctx.fillText('ИГРОК', cx, y - 24 * s);
+      ctx.shadowBlur = 0;
+
+      // Решётка фар
+      ctx.strokeStyle = '#666'; ctx.lineWidth = 0.8;
+      const fry = y + h * 0.22;
+      ctx.beginPath();
+      ctx.moveTo(x + w - 16 * s, fry);
+      ctx.lineTo(x + w - 4 * s, fry);
+      ctx.moveTo(x + w - 16 * s, fry + 6 * s);
+      ctx.lineTo(x + w - 4 * s, fry + 6 * s);
+      ctx.moveTo(x + w - 16 * s, fry + 12 * s);
+      ctx.lineTo(x + w - 4 * s, fry + 12 * s);
+      ctx.stroke();
+    }
+
+    // ========== ВРАГИ ==========
+    function drawEnemyCar(e, index) {
+      const s = SCALE;
+      const colors = [
+        { body: '#cc3333', accent: '#ff6666', window: '#331111' },
+        { body: '#cc6600', accent: '#ff9933', window: '#332200' },
+        { body: '#993399', accent: '#cc66cc', window: '#221133' },
+        { body: '#339933', accent: '#66cc66', window: '#113311' },
+      ];
+      const c = colors[index % colors.length];
+      ctx.shadowColor = c.accent; ctx.shadowBlur = 14;
+      
+      const x = e.x, y = e.y, w = e.width, h = e.height, cx = x + w/2;
+      
+      ctx.fillStyle = 'rgba(0,0,0,0.4)'; ctx.shadowBlur = 0;
+      ctx.fillRect(x + 5 * s, y + h - 5 * s, w - 10 * s, 8 * s);
+      ctx.shadowColor = c.accent; ctx.shadowBlur = 14;
+      
+      ctx.fillStyle = c.body;
+      ctx.beginPath();
+      ctx.moveTo(x + 10 * s, y + h - 10 * s);
+      ctx.lineTo(x + 5 * s, y + h * 0.45);
+      ctx.lineTo(x + w * 0.22, y + 2 * s);
+      ctx.lineTo(x + w * 0.78, y + 2 * s);
+      ctx.lineTo(x + w - 5 * s, y + h * 0.45);
+      ctx.lineTo(x + w - 10 * s, y + h - 10 * s);
+      ctx.closePath(); ctx.fill();
+      ctx.strokeStyle = c.accent; ctx.lineWidth = 2; ctx.stroke();
+      
+      ctx.fillStyle = c.window;
+      ctx.beginPath();
+      ctx.moveTo(x + w * 0.28, y + 5 * s);
+      ctx.lineTo(x + w * 0.72, y + 5 * s);
+      ctx.lineTo(x + w * 0.78, y + h * 0.42);
+      ctx.lineTo(x + w * 0.22, y + h * 0.42);
+      ctx.closePath(); ctx.fill();
+      ctx.strokeStyle = c.accent; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.moveTo(cx, y + 5 * s); ctx.lineTo(cx, y + h * 0.4); ctx.stroke();
+      
+      ctx.fillStyle = '#ffee88'; ctx.shadowColor = '#ffcc00'; ctx.shadowBlur = 10;
+      ctx.fillRect(x + w - 8 * s, y + h * 0.3, 6 * s, 10 * s);
+      ctx.fillStyle = '#ff3333'; ctx.shadowColor = '#ff0000'; ctx.shadowBlur = 8;
+      ctx.fillRect(x + 1 * s, y + h * 0.3, 6 * s, 10 * s);
+      ctx.shadowBlur = 0;
+      
+      const wheelRadius = h * 0.22;
+      const wheelY = y + h - wheelRadius - 3 * s;
+      drawWheel(x + w * 0.25, wheelY, wheelRadius, false);
+      drawWheel(x + w * 0.75, wheelY, wheelRadius, false);
+      
+      ctx.fillStyle = '#444';
+      ctx.fillRect(x + 1 * s, y + h - 15 * s, 5 * s, 5 * s);
+      ctx.fillRect(x + 1 * s, y + h - 8 * s, 5 * s, 5 * s);
+      ctx.fillStyle = '#ff6600'; ctx.shadowColor = '#ff4400'; ctx.shadowBlur = 8;
+      ctx.beginPath();
+      ctx.moveTo(x - 3 * s, y + h - 15 * s);
+      ctx.lineTo(x - 10 * s + Math.random() * 4, y + h - 12 * s);
+      ctx.lineTo(x - 3 * s, y + h - 10 * s);
+      ctx.closePath(); ctx.fill();
+      ctx.shadowBlur = 0;
+      
+      ctx.fillStyle = c.accent; ctx.fillRect(x + 4 * s, y + h * 0.38, w * 0.15, 4 * s);
+      ctx.fillStyle = '#222'; ctx.fillRect(x + 1 * s, y + h * 0.35, 4 * s, 10 * s);
+      ctx.fillRect(x + w * 0.12, y + h * 0.35, 4 * s, 10 * s);
+    }
+
+    // ========== БОСС ТАНК ==========
+    function drawBossTank() {
+      if (!boss) return;
+      const s = SCALE;
+      const x = boss.x, y = boss.y, w = BOSS_WIDTH, h = BOSS_HEIGHT;
+      const cx = x + w/2;
+
+      ctx.shadowColor = '#ff4400'; ctx.shadowBlur = 40;
+
+      // Гусеницы
+      ctx.fillStyle = '#1a1a1a';
+      ctx.fillRect(x + 3 * s, y + h - 20 * s, w - 6 * s, 18 * s);
+      ctx.strokeStyle = '#333'; ctx.lineWidth = 2; ctx.strokeRect(x + 3 * s, y + h - 20 * s, w - 6 * s, 18 * s);
+      
+      for (let i = 0; i < 10; i++) {
+        const tx = x + 8 * s + i * (w - 16 * s) / 10;
+        ctx.fillStyle = '#2a2a2a';
+        ctx.fillRect(tx, y + h - 18 * s, (w - 16 * s) / 10 - 1, 14 * s);
+        ctx.strokeStyle = '#444'; ctx.lineWidth = 1; ctx.strokeRect(tx, y + h - 18 * s, (w - 16 * s) / 10 - 1, 14 * s);
+        ctx.fillStyle = '#555';
+        ctx.beginPath(); ctx.arc(tx + (w - 16 * s) / 20, y + h - 11 * s, 2 * s, 0, Math.PI * 2); ctx.fill();
+      }
+      
+      for (let i = 0; i < 6; i++) {
+        const wx = x + 20 * s + i * (w - 40 * s) / 5;
+        ctx.fillStyle = '#333';
+        ctx.beginPath(); ctx.arc(wx, y + h - 10 * s, 9 * s, 0, Math.PI * 2); ctx.fill();
+        ctx.strokeStyle = '#555'; ctx.lineWidth = 1.5; ctx.stroke();
+        ctx.fillStyle = '#666';
+        ctx.beginPath(); ctx.arc(wx, y + h - 10 * s, 5 * s, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#888';
+        ctx.beginPath(); ctx.arc(wx, y + h - 10 * s, 2.5 * s, 0, Math.PI * 2); ctx.fill();
+      }
+
+      // Корпус
+      ctx.fillStyle = '#4a5a3a';
+      ctx.beginPath();
+      ctx.moveTo(x + 10 * s, y + 12 * s);
+      ctx.lineTo(x + w - 10 * s, y + 12 * s);
+      ctx.lineTo(x + w - 5 * s, y + h - 22 * s);
+      ctx.lineTo(x + 5 * s, y + h - 22 * s);
+      ctx.closePath(); ctx.fill();
+      ctx.strokeStyle = '#6a7a5a'; ctx.lineWidth = 3; ctx.stroke();
+      
+      ctx.fillStyle = '#3a4a2a';
+      ctx.fillRect(x + 18 * s, y + 20 * s, w - 36 * s, 10 * s);
+      ctx.strokeStyle = '#5a6a4a'; ctx.lineWidth = 1.5; ctx.strokeRect(x + 18 * s, y + 20 * s, w - 36 * s, 10 * s);
+      
+      for (let i = 0; i < 8; i++) {
+        const rx = x + 24 * s + i * (w - 48 * s) / 7;
+        ctx.fillStyle = '#6a7a5a';
+        ctx.beginPath(); ctx.arc(rx, y + 25 * s, 2.5 * s, 0, Math.PI * 2); ctx.fill();
+        ctx.strokeStyle = '#8a9a7a'; ctx.lineWidth = 0.8; ctx.stroke();
+      }
+
+      // Башня
+      ctx.fillStyle = '#3a4a2a';
+      ctx.beginPath();
+      ctx.moveTo(cx - 22 * s, y - 5 * s);
+      ctx.lineTo(cx + 22 * s, y - 5 * s);
+      ctx.lineTo(cx + 17 * s, y + 10 * s);
+      ctx.lineTo(cx - 17 * s, y + 10 * s);
+      ctx.closePath(); ctx.fill();
+      ctx.strokeStyle = '#5a6a4a'; ctx.lineWidth = 2.5; ctx.stroke();
+      
+      ctx.fillStyle = '#2a3a1a';
+      ctx.beginPath(); ctx.arc(cx, y, 9 * s, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = '#5a6a4a'; ctx.lineWidth = 2; ctx.stroke();
+      ctx.fillStyle = '#4a5a3a';
+      ctx.beginPath(); ctx.arc(cx, y, 4 * s, 0, Math.PI * 2); ctx.fill();
+
+      // Пушка
+      ctx.fillStyle = '#444';
+      ctx.fillRect(cx - 6 * s, y - 10 * s, 12 * s, 10 * s);
+      ctx.strokeStyle = '#666'; ctx.lineWidth = 1.5; ctx.strokeRect(cx - 6 * s, y - 10 * s, 12 * s, 10 * s);
+      ctx.fillStyle = '#555';
+      ctx.fillRect(cx - 4 * s, y - 28 * s, 8 * s, 20 * s);
+      ctx.strokeStyle = '#777'; ctx.lineWidth = 1.5; ctx.strokeRect(cx - 4 * s, y - 28 * s, 8 * s, 20 * s);
+      ctx.fillStyle = '#666';
+      ctx.fillRect(cx - 7 * s, y - 33 * s, 14 * s, 8 * s);
+      ctx.fillStyle = '#444';
+      ctx.fillRect(cx - 5 * s, y - 35 * s, 4 * s, 4 * s);
+      ctx.fillRect(cx + 1 * s, y - 35 * s, 4 * s, 4 * s);
+
+      // Пулемёт
+      ctx.fillStyle = '#333';
+      ctx.fillRect(cx + 18 * s, y - 8 * s, 12 * s, 4 * s);
+      ctx.fillStyle = '#444';
+      ctx.fillRect(cx + 27 * s, y - 9 * s, 5 * s, 6 * s);
+      
+      // Ракеты
+      ctx.fillStyle = '#3a3a3a';
+      ctx.fillRect(x + w - 18 * s, y + 5 * s, 12 * s, 20 * s);
+      ctx.strokeStyle = '#555'; ctx.lineWidth = 1.5; ctx.strokeRect(x + w - 18 * s, y + 5 * s, 12 * s, 20 * s);
+      for (let i = 0; i < 4; i++) {
+        ctx.fillStyle = '#444';
+        ctx.fillRect(x + w - 16 * s, y + 7 * s + i * 5 * s, 8 * s, 3 * s);
+      }
+
+      // Фары
+      ctx.fillStyle = '#ffaa00'; ctx.shadowColor = '#ff8800'; ctx.shadowBlur = 22;
+      ctx.fillRect(x + w - 12 * s, y + 22 * s, 11 * s, 10 * s);
+      ctx.fillRect(x + w - 12 * s, y + 37 * s, 11 * s, 10 * s);
+      ctx.shadowBlur = 0;
+      ctx.fillStyle = '#fff';
+      ctx.fillRect(x + w - 9 * s, y + 24 * s, 4 * s, 5 * s);
+      ctx.fillRect(x + w - 9 * s, y + 39 * s, 4 * s, 5 * s);
+
+      // Шипы
+      ctx.fillStyle = '#888';
+      for (let i = 0; i < 5; i++) {
+        const sx = x + 14 * s + i * (w - 28 * s) / 4;
+        ctx.beginPath();
+        ctx.moveTo(sx, y + 10 * s);
+        ctx.lineTo(sx + 6 * s, y);
+        ctx.lineTo(sx + 12 * s, y + 10 * s);
+        ctx.fill();
+      }
+
+      ctx.shadowBlur = 0;
+      ctx.fillStyle = '#ff4444';
+      ctx.font = `bold ${13 * s}px "Courier New", monospace`;
+      ctx.textAlign = 'center';
+      ctx.fillText('ТАНК-БОСС', cx, y - 38 * s);
+      ctx.fillStyle = '#aaa';
+      ctx.font = `${9 * s}px "Courier New", monospace`;
+      ctx.fillText('T-666', cx, y + h - 6 * s);
+
+      // HP бар
+      ctx.fillStyle = '#ff3344';
+      ctx.fillRect(x + 5 * s, y - 45 * s, w - 10 * s, 6 * s);
+      ctx.fillStyle = '#44ff44';
+      ctx.fillRect(x + 5 * s, y - 45 * s, (boss.hp / boss.maxHp) * (w - 10 * s), 6 * s);
+      ctx.strokeStyle = '#fff'; ctx.lineWidth = 1; ctx.strokeRect(x + 5 * s, y - 45 * s, w - 10 * s, 6 * s);
+      
+      ctx.strokeStyle = '#000'; ctx.lineWidth = 0.8;
+      for (let i = 1; i < boss.maxHp; i++) {
+        const segX = x + 5 * s + (i / boss.maxHp) * (w - 10 * s);
+        ctx.beginPath();
+        ctx.moveTo(segX, y - 45 * s);
+        ctx.lineTo(segX, y - 39 * s);
+        ctx.stroke();
+      }
+    }
+
+    // ========== ИГРОВАЯ ЛОГИКА ==========
+    function triggerGameOver(isVictory) {
+      if (gameOver) return;
+      gameActive = false; gameOver = true; victory = isVictory;
+      winOverlay.classList.remove('show'); loseOverlay.classList.remove('show');
+      if (isVictory) {
+        winOverlay.classList.add('show'); debugDisplay.textContent = '🏆 ТЫ ПОБЕДИЛ!';
+      } else {
+        loseOverlay.classList.add('show'); debugDisplay.textContent = '💀 ТЫ ПРОИГРАЛ';
+      }
+      updateUI();
+    }
+
+    document.addEventListener('keydown', function(event) {
+      const key = event.key;
+      if (!gameStarted && !gameOver) {
+        startOverlay.classList.add('hidden'); gameStarted = true;
+        debugDisplay.textContent = '🎮 ИГРА НАЧАЛАСЬ!'; return;
+      }
+      if (gameOver) { if (key === 'Enter') { event.preventDefault(); restartGame(); } return; }
+      if (key === 'ArrowUp' || key === 'w' || key === 'W') { event.preventDefault(); upPressed = true; }
+      if (key === 'ArrowDown' || key === 's' || key === 'S') { event.preventDefault(); downPressed = true; }
+      if (key === 'Enter') { event.preventDefault(); restartGame(); }
+    });
+
+    document.addEventListener('keyup', function(event) {
+      const key = event.key;
+      if (key === 'ArrowUp' || key === 'w' || key === 'W') { event.preventDefault(); upPressed = false; }
+      if (key === 'ArrowDown' || key === 's' || key === 'S') { event.preventDefault(); downPressed = false; }
+    });
+
+    function handleShootInput(clientX, clientY) {
+      if (!gameStarted && !gameOver) {
+        startOverlay.classList.add('hidden'); gameStarted = true;
+        debugDisplay.textContent = '🎮 ИГРА НАЧАЛАСЬ!'; return;
+      }
+      if (!gameActive || gameOver) return;
+      const rect = canvas.getBoundingClientRect();
+      shootAtTarget((clientX - rect.left) * (canvas.width / rect.width), (clientY - rect.top) * (canvas.height / rect.height));
+    }
+
+    canvas.addEventListener('click', function(e) { canvas.focus(); handleShootInput(e.clientX, e.clientY); });
+    canvas.addEventListener('contextmenu', function(e) { e.preventDefault(); });
+    canvas.addEventListener('mousedown', function(e) {
+      canvas.focus();
+      if (e.button === 2) { e.preventDefault(); handleShootInput(e.clientX, e.clientY); }
+    });
+
+    function shootAtTarget(targetX, targetY) {
+      if (!gameActive || gameOver || player.shootCooldown > 0) return;
+      let target = null, minDist = Infinity;
+      for (let e of enemies) {
+        const dist = Math.hypot(e.x + e.width/2 - targetX, e.y + e.height/2 - targetY);
+        if (dist < minDist) { minDist = dist; target = e; }
+      }
+      if (bossActive && boss) {
+        const dist = Math.hypot(boss.x + BOSS_WIDTH/2 - targetX, boss.y + BOSS_HEIGHT/2 - targetY);
+        if (dist < minDist) { minDist = dist; target = boss; }
+      }
+      let aimX = targetX, aimY = targetY;
+      if (target && minDist < 180 * SCALE) {
+        aimX = target.x + (target.width || BOSS_WIDTH) / 2;
+        aimY = target.y + (target.height || BOSS_HEIGHT) / 2;
+      }
+      const dx = aimX - player.x, dy = aimY - player.y;
+      const dist = Math.hypot(dx, dy);
+      if (dist < 15) return;
+      playerBullets.push({
+        x: player.x + 50 * SCALE, y: player.y - 7 * SCALE,
+        vx: (dx / dist) * 12, vy: (dy / dist) * 12,
+        radius: 6 * SCALE, life: 100,
+        damage: BALANCE.PLAYER_BULLET_DMG
+      });
+      player.shootCooldown = player.shootDelay;
+    }
+
+    function spawnEnemy() {
+      if (!gameActive || gameOver || enemiesSpawned >= totalEnemiesPerLevel || bossActive) return;
+      const y = 40 + Math.random() * (canvas.height - 80);
+      enemies.push({
+        x: canvas.width + 30 + Math.random() * 80, y: y,
+        width: ENEMY_WIDTH, height: ENEMY_HEIGHT,
+        speed: 1.5 + Math.random() * 2.0, hp: BALANCE.ENEMY_HP,
+        shootCooldown: 15 + Math.random() * 35, shootDelay: 35 + Math.random() * 25
+      });
+      enemiesSpawned++;
+    }
+
+    function initEnemies() {
+      enemies = []; enemiesSpawned = 0;
+      for (let i = 0; i < Math.min(totalEnemiesPerLevel, 10); i++) {
+        enemies.push({
+          x: canvas.width + 30 + i * 120 + Math.random() * 60,
+          y: 40 + Math.random() * (canvas.height - 80),
+          width: ENEMY_WIDTH, height: ENEMY_HEIGHT,
+          speed: 1.2 + Math.random() * 2.0, hp: BALANCE.ENEMY_HP,
+          shootCooldown: 8 + Math.random() * 40, shootDelay: 35 + Math.random() * 25
+        });
+        enemiesSpawned++;
+      }
+    }
+
+    function spawnBoss() {
+      bossActive = true; bossDefeated = false; bossSpawned = true;
+      boss = {
+        x: canvas.width - 80, y: canvas.height / 2 - BOSS_HEIGHT / 2,
+        width: BOSS_WIDTH, height: BOSS_HEIGHT,
+        hp: BALANCE.BOSS_HP, maxHp: BALANCE.BOSS_HP,
+        speed: 1.5, direction: 1,
+        shootCooldown: 90, shootDelay: 90
+      };
+      bossHpDisplay.classList.add('active');
+      bossHpDisplay.textContent = '💀 БОСС: ' + BALANCE.BOSS_HP;
+      levelDisplay.textContent = '👹 ТАНК-БОСС';
+    }
+
+    function checkLevelComplete() {
+      if (gameOver) return false;
+      if (bossSpawned && bossDefeated) { triggerGameOver(true); return true; }
+      if (!bossActive && !bossSpawned && enemies.length === 0 && enemiesSpawned >= totalEnemiesPerLevel && gameActive) {
+        spawnBoss(); updateUI(); return true;
+      }
+      return false;
+    }
+
+    function update() {
+      frameCount++;
+      if (!gameStarted || gameOver || !gameActive) return;
+
+      timeLeft -= 1/60;
+      if (timeLeft <= 0) { timeLeft = 0; triggerGameOver(false); return; }
+
+      if (upPressed) { player.y -= player.speed; if (player.y < 30) player.y = 30; }
+      if (downPressed) { player.y += player.speed; if (player.y > canvas.height - 30) player.y = canvas.height - 30; }
+      if (player.shootCooldown > 0) player.shootCooldown--;
+
+      for (let e of enemies) {
+        e.x -= e.speed;
+        e.shootCooldown--;
+        if (e.shootCooldown <= 0 && e.x < canvas.width - 30 && e.x > 0) {
+          const dx = player.x - e.x, dy = player.y - e.y;
+          const dist = Math.hypot(dx, dy);
+          if (dist > 0) {
+            enemyBullets.push({
+              x: e.x, y: e.y + e.height/2,
+              vx: (dx / dist) * 5.5, vy: (dy / dist) * 5.5,
+              radius: 6 * SCALE, life: 140,
+              damage: BALANCE.ENEMY_BULLET_DMG, isBossBullet: false
+            });
+            e.shootCooldown = e.shootDelay;
+          }
+        }
+      }
+      enemies = enemies.filter(e => e.x > -100);
+
+      if (bossActive && boss) {
+        boss.y += boss.speed * boss.direction;
+        if (boss.y < 30 || boss.y + BOSS_HEIGHT > canvas.height - 30) boss.direction *= -1;
+        boss.shootCooldown--;
+        if (boss.shootCooldown <= 0 && boss.x > 60) {
+          const dx = player.x - boss.x, dy = player.y - (boss.y + BOSS_HEIGHT/2);
+          const dist = Math.hypot(dx, dy);
+          if (dist > 0) {
+            enemyBullets.push({
+              x: boss.x, y: boss.y + BOSS_HEIGHT/2,
+              vx: (dx / dist) * 5.5, vy: (dy / dist) * 5.5,
+              radius: 20 * SCALE, life: 180,
+              damage: BALANCE.BOSS_BULLET_DMG, isBossBullet: true
+            });
+            boss.shootCooldown = boss.shootDelay;
+          }
+        }
+      }
+
+      for (let b of playerBullets) { b.x += b.vx; b.y += b.vy; b.life--; }
+      playerBullets = playerBullets.filter(b => b.life > 0 && b.x < canvas.width + 30 && b.x > -30 && b.y > -30 && b.y < canvas.height + 30);
+
+      for (let i = playerBullets.length - 1; i >= 0; i--) {
+        const b = playerBullets[i];
+        for (let j = enemies.length - 1; j >= 0; j--) {
+          const e = enemies[j];
+          if (b.x > e.x && b.x < e.x + e.width && b.y > e.y && b.y < e.y + e.height) {
+            e.hp -= b.damage; playerBullets.splice(i, 1);
+            if (e.hp <= 0) { enemies.splice(j, 1); kills++; }
+            break;
+          }
+        }
+      }
+
+      if (bossActive && boss) {
+        for (let i = playerBullets.length - 1; i >= 0; i--) {
+          const b = playerBullets[i];
+          if (b.x > boss.x && b.x < boss.x + BOSS_WIDTH && b.y > boss.y && b.y < boss.y + BOSS_HEIGHT) {
+            boss.hp -= b.damage; playerBullets.splice(i, 1);
+            bossHpDisplay.textContent = '💀 БОСС: ' + Math.max(0, boss.hp);
+            if (boss.hp <= 0) {
+              bossDefeated = true; bossActive = false; kills += 5;
+              bossHpDisplay.classList.remove('active');
+              checkLevelComplete(); updateUI(); return;
+            }
+            break;
+          }
+        }
+      }
+
+      for (let b of enemyBullets) { b.x += b.vx; b.y += b.vy; b.life--; }
+      enemyBullets = enemyBullets.filter(b => b.life > 0 && b.x < canvas.width + 30 && b.x > -80 && b.y > -30 && b.y < canvas.height + 30);
+
+      const px = player.x - 16 * SCALE;
+      const py = player.y - 22 * SCALE;
+      const pw = player.width;
+      const ph = player.height;
+
+      for (let i = enemyBullets.length - 1; i >= 0; i--) {
+        const b = enemyBullets[i];
+        if (b.x > px && b.x < px + pw && b.y > py && b.y < py + ph) {
+          player.hp -= b.damage; enemyBullets.splice(i, 1);
+          if (player.hp <= 0) { player.hp = 0; triggerGameOver(false); return; }
+          break;
+        }
+      }
+
+      for (let e of enemies) {
+        if (e.x < px + pw && e.x + e.width > px && e.y < py + ph && e.y + e.height > py) {
+          triggerGameOver(false); return;
+        }
+      }
+
+      if (bossActive && boss) {
+        if (boss.x < px + pw && boss.x + BOSS_WIDTH > px && boss.y < py + ph && boss.y + BOSS_HEIGHT > py) {
+          triggerGameOver(false); return;
+        }
+      }
+
+      if (!bossActive && !bossSpawned && enemies.length < 10 && enemiesSpawned < totalEnemiesPerLevel && Math.random() < 0.03) {
+        spawnEnemy();
+      }
+
+      checkLevelComplete();
+      updateUI();
+    }
+
+    function updateUI() {
+      const mins = Math.floor(timeLeft / 60), secs = Math.floor(timeLeft % 60);
+      timerDisplay.textContent = '⏱️ ' + String(mins).padStart(2, '0') + ':' + String(secs).padStart(2, '0');
+      if (bossDefeated) {
+        killCounter.textContent = kills + ' ★'; enemyCountDisplay.textContent = '✅ ПОБЕДА';
+      } else if (bossActive) {
+        killCounter.textContent = kills + ' ★'; enemyCountDisplay.textContent = '💀 БОСС';
+      } else {
+        killCounter.textContent = kills + '/' + totalEnemiesPerLevel;
+        enemyCountDisplay.textContent = '🚗 ' + enemies.length + '/' + totalEnemiesPerLevel;
+      }
+      hpDisplay.textContent = '❤️ ' + Math.max(0, player.hp);
+      if (!bossActive && !bossSpawned) levelDisplay.textContent = 'УРОВЕНЬ ' + level;
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const gradient = ctx.createLinearGradient(0, 0, canvas.width, 0);
+      gradient.addColorStop(0, '#1a2a3a'); gradient.addColorStop(0.5, '#2a3a4a'); gradient.addColorStop(1, '#1a2a3a');
+      ctx.fillStyle = gradient; ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      // Дорожная разметка
+      ctx.setLineDash([30, 45]);
+      ctx.strokeStyle = '#5a7a5a'; ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.moveTo(0, canvas.height/2); ctx.lineTo(canvas.width, canvas.height/2); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.strokeStyle = '#6a8a6a'; ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(0, 20); ctx.lineTo(canvas.width, 20);
+      ctx.moveTo(0, canvas.height - 20); ctx.lineTo(canvas.width, canvas.height - 20);
+      ctx.stroke();
+
+      for (let i = 0; i < enemies.length; i++) drawEnemyCar(enemies[i], i);
+      if (bossActive && boss) drawBossTank();
+      drawPlayerJeep();
+      
+      for (let b of playerBullets) {
+        ctx.fillStyle = '#ffdd44'; ctx.shadowColor = '#ffaa00'; ctx.shadowBlur = 20;
+        ctx.beginPath(); ctx.arc(b.x, b.y, b.radius, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(b.x, b.y, b.radius * 0.5, 0, Math.PI * 2); ctx.fill();
+        ctx.shadowBlur = 0;
+      }
+      for (let b of enemyBullets) {
+        ctx.fillStyle = b.isBossBullet ? '#ff4400' : '#ff6666';
+        ctx.shadowColor = b.isBossBullet ? '#ff2200' : '#ff0000';
+        ctx.shadowBlur = b.isBossBullet ? 40 : 16;
+        ctx.beginPath(); ctx.arc(b.x, b.y, b.radius, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = b.isBossBullet ? '#ffaa00' : '#ffaaaa';
+        ctx.beginPath(); ctx.arc(b.x, b.y, b.radius * 0.5, 0, Math.PI * 2); ctx.fill();
+        ctx.shadowBlur = 0;
+      }
+    }
+
+    function restartGame() {
+      timeLeft = GAME_DURATION; kills = 0;
+      gameActive = true; gameOver = false; victory = false;
+      level = 1; bossActive = false; bossDefeated = false; bossSpawned = false; boss = null;
+      player.y = canvas.height / 2; player.hp = BALANCE.PLAYER_HP; player.shootCooldown = 0;
+      playerBullets = []; enemyBullets = [];
+      totalEnemiesPerLevel = 10; enemiesSpawned = 0;
+      bossHpDisplay.classList.remove('active');
+      levelDisplay.textContent = 'УРОВЕНЬ 1';
+      winOverlay.classList.remove('show'); loseOverlay.classList.remove('show');
+      startOverlay.classList.remove('hidden'); gameStarted = false;
+      initEnemies(); updateUI();
+      debugDisplay.textContent = '🔄 НАЖМИ ЛЮБУЮ КЛАВИШУ ДЛЯ СТАРТА';
+      canvas.focus();
+    }
+
+    restartBtn.addEventListener('click', restartGame);
+
+    function gameLoop() { update(); draw(); requestAnimationFrame(gameLoop); }
+
+    initEnemies(); updateUI(); gameLoop();
+    debugDisplay.textContent = '👆 КЛИКНИ ПО ЭКРАНУ ИЛИ НАЖМИ ЛЮБУЮ КЛАВИШУ';
+  })();
+</script>
+</body>
+</html>
