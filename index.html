@@ -1,372 +1,444 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Лабиринт: Динозавр и Монстр</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; }
-    body {
-      background: #0b0f1a;
-      color: #fff;
-      font-family: 'Courier New', monospace;
-      overflow: hidden;
-    }
-    #game-container {
-      position: relative;
-      width: 100vw;
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-    canvas {
-      display: block;
-      box-shadow: 0 0 30px rgba(0,0,0,0.8);
-      border: 2px solid #444;
-      background: #111;
-    }
-    .ui-layer {
-      position: absolute;
-      top: 0; left: 0; width: 100%; height: 100%;
-      pointer-events: none;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      padding: 16px;
-      text-align: center;
-    }
-    .hud {
-      pointer-events: none;
-      font-size: 14px;
-      letter-spacing: 2px;
-      text-shadow: 0 2px 4px #000;
-    }
-    .status {
-      font-weight: bold;
-      font-size: 18px;
-    }
-    .controls-hint {
-      font-size: 12px;
-      opacity: 0.7;
-      margin-top: 4px;
-    }
-    .overlay {
-      position: absolute;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.85);
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      z-index: 10;
-      pointer-events: auto;
-    }
-    .btn {
-      margin: 12px 0;
-      padding: 12px 24px;
-      border: 2px solid #fff;
-      background: transparent;
-      color: #fff;
-      font-family: inherit;
-      font-weight: bold;
-      cursor: pointer;
-      letter-spacing: 2px;
-      transition: 0.1s;
-    }
-    .btn:hover { background: #fff; color: #000; }
-    .hidden { display: none !important; }
+    <meta charset="UTF-8">
+    <!-- Фиксируем масштаб и запрещаем зум для ощущения нативного приложения -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Побег Динозавра: Мобильная</title>
+    <style>
+        body {
+            background-color: #2c3e50;
+            color: white;
+            font-family: 'Segoe UI', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            touch-action: none; /* Отключаем стандартные жесты браузера */
+            user-select: none;
+            -webkit-user-select: none;
+        }
 
-    .touch-controls {
-      position: absolute;
-      bottom: 16px;
-      left: 50%;
-      transform: translateX(-50%);
-      display: grid;
-      grid-template-columns: repeat(3, 60px);
-      gap: 8px;
-      pointer-events: auto;
-    }
-    .d-pad-btn {
-      width: 60px; height: 60px;
-      border-radius: 12px;
-      background: rgba(255,255,255,0.15);
-      color: white;
-      border: none;
-      font-family: inherit;
-      font-size: 20px;
-      cursor: pointer;
-    }
-    .d-pad-btn:active { background: rgba(255,255,255,0.3); }
-  </style>
+        h1 { 
+            margin: 10px 0; 
+            font-size: 20px; 
+            text-align: center;
+            pointer-events: none;
+        }
+
+        #game-container {
+            position: relative;
+            box-shadow: 0 0 15px rgba(0,0,0,0.5);
+            border: 3px solid #ecf0f1;
+            border-radius: 8px;
+            background: #34495e;
+            /* Размер задается JS, но ставим ограничения */
+            max-width: 95vw;
+            max-height: 55vh; 
+        }
+
+        canvas { display: block; }
+
+        /* UI Слой (Меню) */
+        #ui-layer {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 20;
+            text-align: center;
+            padding: 20px;
+            box-sizing: border-box;
+            border-radius: 5px;
+        }
+        .hidden { display: none !important; }
+        
+        button.start-btn {
+            padding: 15px 40px;
+            font-size: 22px;
+            cursor: pointer;
+            background: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            margin-top: 20px;
+            box-shadow: 0 4px 0 #219150;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+        button.start-btn:active { transform: translateY(4px); box-shadow: none; }
+
+        /* МОБИЛЬНОЕ УПРАВЛЕНИЕ (D-PAD) */
+        #controls {
+            width: 100%;
+            max-width: 280px;
+            height: 160px;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            gap: 10px;
+            padding: 10px;
+            margin-bottom: 20px;
+        }
+
+        .ctrl-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            color: white;
+            transition: background 0.1s;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        .ctrl-btn:active, .ctrl-btn.pressed {
+            background: rgba(46, 204, 113, 0.4);
+            border-color: #2ecc71;
+            transform: scale(0.95);
+        }
+
+        /* Расположение кнопок */
+        #btn-up { grid-column: 2; grid-row: 1; }
+        #btn-left { grid-column: 1; grid-row: 2; }
+        #btn-down { grid-column: 2; grid-row: 2; }
+        #btn-right { grid-column: 3; grid-row: 2; }
+
+        @media (max-height: 600px) {
+            h1 { font-size: 16px; margin: 5px 0; }
+            #controls { height: 130px; margin-bottom: 5px; gap: 5px; }
+            .ctrl-btn { font-size: 24px; border-radius: 10px; }
+        }
+    </style>
 </head>
 <body>
-  <div id="game-container">
-    <canvas id="gameCanvas"></canvas>
 
-    <!-- HUD -->
-    <div class="ui-layer">
-      <div class="hud">
-        <span class="status" id="statusText">БЕГИ!</span>
-        <br>
-        <span id="timerText">Время: 60</span> | <span id="scoreText">Счёт: 0</span>
-      </div>
-      <div class="controls-hint">Управление: стрелки / кнопки</div>
+    <h1>🦕 Побег из Лабиринта 👹</h1>
+    
+    <div id="game-container">
+        <canvas id="mazeCanvas"></canvas>
+        <div id="ui-layer">
+            <h2 id="msg-title">Готов?</h2>
+            <p id="msg-desc" style="font-size: 16px; line-height: 1.4;">
+                Используй кнопки внизу<br>или свайпы по экрану.<br>
+                Найди выход 🚪 раньше монстра!
+            </p>
+            <button class="start-btn" onclick="startGame()">ИГРАТЬ</button>
+        </div>
     </div>
 
-    <!-- Стартовый экран -->
-    <div id="startOverlay" class="overlay">
-      <h1 style="font-size:32px; margin-bottom:16px;">ЛАБИРИНТ</h1>
-      <p style="max-width:360px; text-align:center; margin-bottom:24px;">
-        Ты верхом на динозавре. Найди выход из лабиринта, пока монстр не догнал тебя.
-      </p>
-      <button class="btn" id="startBtn">СТАРТ</button>
+    <!-- Экранные кнопки -->
+    <div id="controls">
+        <div class="ctrl-btn" id="btn-up">⬆️</div>
+        <div class="ctrl-btn" id="btn-left">⬅️</div>
+        <div class="ctrl-btn" id="btn-down">⬇️</div>
+        <div class="ctrl-btn" id="btn-right">➡️</div>
     </div>
-
-    <!-- Экран проигрыша/победы -->
-    <div id="endOverlay" class="overlay hidden">
-      <h1 id="endTitle" style="font-size:32px; margin-bottom:12px;"></h1>
-      <p id="endDesc" style="margin-bottom:20px;"></p>
-      <button class="btn" id="restartBtn">ЕЩЁ РАЗ</button>
-    </div>
-
-    <!-- Сенсорные кнопки -->
-    <div class="touch-controls">
-      <button class="d-pad-btn" id="btnUp">⬆️</button>
-      <button class="d-pad-btn" id="btnLeft">⬅️</button>
-      <button class="d-pad-btn" id="btnRight">➡️</button>
-      <button class="d-pad-btn" id="btnDown">⬇️</button>
-      <div style="grid-column: 2 / 4; text-align: center; font-size:10px; opacity:0.6;">
-        или клавиши-стрелки
-      </div>
-    </div>
-  </div>
 
 <script>
-(function() {
-  const canvas = document.getElementById('gameCanvas');
-  const ctx = canvas.getContext('2d');
+    const canvas = document.getElementById('mazeCanvas');
+    const ctx = canvas.getContext('2d');
+    const uiLayer = document.getElementById('ui-layer');
+    const msgTitle = document.getElementById('msg-title');
+    const msgDesc = document.getElementById('msg-desc');
 
-  function resize() {
-    const size = Math.min(window.innerWidth, window.innerHeight) * 0.9;
-    canvas.width = size;
-    canvas.height = size;
-  }
-  window.addEventListener('resize', resize);
-  resize();
+    // Настройки
+    const COLS = 11; // Нечетное число лучше для алгоритма
+    const ROWS = 11;
+    const MOVE_SPEED = 0.25;
+    let CELL_SIZE = 30;
 
-  const TILE = 40;
-  const COLS = Math.floor(canvas.width / TILE);
-  const ROWS = Math.floor(canvas.height / TILE);
+    let maze = [];
+    let gameRunning = false;
+    let monsterInterval = null;
+    let animationFrameId = null;
 
-  const WALL = 1;
-  const EMPTY = 0;
+    let player = { gx: 0, gy: 0, x: 0, y: 0, facingRight: true, isMoving: false };
+    let monster = { gx: 0, gy: 0, x: 0, y: 0 };
+    let exitPos = { x: 0, y: 0 };
 
-  let grid = [];
-  let player = { x: 0, y: 0, vx: 0, vy: 0, speed: 3.5 };
-  let monster = { x: 0, y: 0, vx: 0, vy: 0, speed: 4.0 };
-  let exit = { x: 0, y: 0 };
+    // --- АДАПТИВНЫЙ РАЗМЕР ---
+    function resize() {
+        const maxWidth = window.innerWidth * 0.95;
+        const maxHeight = window.innerHeight * 0.55; 
+        
+        const cellW = Math.floor(maxWidth / COLS);
+        const cellH = Math.floor(maxHeight / ROWS);
+        CELL_SIZE = Math.min(cellW, cellH, 45);
 
-  let timeLeft = 60;
-  let score = 0;
-  let gameActive = false;
-  let frameId;
-
-  const startOverlay = document.getElementById('startOverlay');
-  const endOverlay = document.getElementById('endOverlay');
-  const statusText = document.getElementById('statusText');
-  const timerText = document.getElementById('timerText');
-  const scoreText = document.getElementById('scoreText');
-  const endTitle = document.getElementById('endTitle');
-  const endDesc = document.getElementById('endDesc');
-
-  const keys = { up: false, down: false, left: false, right: false };
-  window.addEventListener('keydown', e => {
-    if (e.key === 'ArrowUp') keys.up = true;
-    if (e.key === 'ArrowDown') keys.down = true;
-    if (e.key === 'ArrowLeft') keys.left = true;
-    if (e.key === 'ArrowRight') keys.right = true;
-  });
-  window.addEventListener('keyup', e => {
-    if (e.key === 'ArrowUp') keys.up = false;
-    if (e.key === 'ArrowDown') keys.down = false;
-    if (e.key === 'ArrowLeft') keys.left = false;
-    if (e.key === 'ArrowRight') keys.right = false;
-  });
-
-  ['Up','Down','Left','Right'].forEach(dir => {
-    const btn = document.getElementById('btn' + dir);
-    btn.addEventListener('pointerdown', () => keys[dir.toLowerCase()] = true);
-    btn.addEventListener('pointerup', () => keys[dir.toLowerCase()] = false);
-    btn.addEventListener('pointerleave', () => keys[dir.toLowerCase()] = false);
-  });
-
-  function generateMaze() {
-    grid = [];
-    for (let r = 0; r < ROWS; r++) {
-      const row = [];
-      for (let c = 0; c < COLS; c++) {
-        if (r === 0 || r === ROWS - 1 || c === 0 || c === COLS - 1) {
-          row.push(WALL);
-        } else {
-          row.push(Math.random() < 0.35 ? WALL : EMPTY);
-        }
-      }
-      grid.push(row);
+        canvas.width = COLS * CELL_SIZE;
+        canvas.height = ROWS * CELL_SIZE;
+        
+        if (gameRunning || maze.length > 0) draw();
     }
-
-    player.x = TILE * 2;
-    player.y = TILE * 2;
-    exit.x = TILE * (COLS - 3);
-    exit.y = TILE * (ROWS - 3);
-
-    monster.x = TILE * Math.floor(COLS / 2);
-    monster.y = TILE * Math.floor(ROWS / 2);
-
-    score = 0;
-    timeLeft = 60;
-  }
-
-  function isWall(x, y) {
-    const col = Math.floor(x / TILE);
-    const row = Math.floor(y / TILE);
-    if (col < 0 || col >= COLS || row < 0 || row >= ROWS) return true;
-    return grid[row][col] === WALL;
-  }
-
-  function canMoveTo(x, y, size = 20) {
-    const corners = [
-      {x: x - size/2, y: y - size/2},
-      {x: x + size/2, y: y - size/2},
-      {x: x - size/2, y: y + size/2},
-      {x: x + size/2, y: y + size/2}
-    ];
-    for (const c of corners) {
-      if (isWall(c.x, c.y)) return false;
-    }
-    return true;
-  }
-
-  function update() {
-    if (!gameActive) return;
-
-    // Игрок
-    player.vx = player.vy = 0;
-    if (keys.up) player.vy -= player.speed;
-    if (keys.down) player.vy += player.speed;
-    if (keys.left) player.vx -= player.speed;
-    if (keys.right) player.vx += player.speed;
-
-    let nextX = player.x + player.vx;
-    let nextY = player.y + player.vy;
-
-    if (canMoveTo(nextX, player.y)) player.x = nextX;
-    if (canMoveTo(player.x, nextY)) player.y = nextY;
-
-    player.x = Math.max(TILE + 10, Math.min(canvas.width - TILE - 10, player.x));
-    player.y = Math.max(TILE + 10, Math.min(canvas.height - TILE - 10, player.y));
-
-    // Монстр (с коллизиями)
-    const dx = player.x - monster.x;
-    const dy = player.y - monster.y;
-    const dist = Math.hypot(dx, dy);
     
-    monster.vx = monster.vy = 0;
-    if (dist > 1) {
-      monster.vx = (dx / dist) * monster.speed;
-      monster.vy = (dy / dist) * monster.speed;
-    }
+    window.addEventListener('resize', resize);
+    resize();
 
-    nextX = monster.x + monster.vx;
-    nextY = monster.y + monster.vy;
-
-    if (canMoveTo(nextX, monster.y, 22)) monster.x = nextX;
-    if (canMoveTo(monster.x, nextY, 22)) monster.y = nextY;
-
-    if (Math.abs(player.x - exit.x) < TILE - 4 && Math.abs(player.y - exit.y) < TILE - 4) winGame();
-    if (Math.hypot(player.x - monster.x, player.y - monster.y) < 35) loseGame();
-
-    timeLeft -= 1 / 60;
-    if (timeLeft <= 0) loseGame();
-
-    updateUI();
-  }
-
-  function draw() {
-    ctx.fillStyle = '#111';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    for (let r = 0; r < ROWS; r++) {
-      for (let c = 0; c < COLS; c++) {
-        if (grid[r][c] === WALL) {
-          ctx.fillStyle = '#333';
-          ctx.strokeStyle = '#555';
-          const x = c * TILE;
-          const y = r * TILE;
-          ctx.fillRect(x + 1, y + 1, TILE - 2, TILE - 2);
-          ctx.strokeRect(x, y, TILE, TILE);
+    // --- ГЕНЕРАЦИЯ ЛАБИРИНТА ---
+    function generateMaze() {
+        maze = [];
+        for (let y = 0; y < ROWS; y++) {
+            let row = [];
+            for (let x = 0; x < COLS; x++) {
+                row.push({ visited: false, walls: { top: true, right: true, bottom: true, left: true } });
+            }
+            maze.push(row);
         }
-      }
+
+        let stack = [{x: 0, y: 0}];
+        maze[0][0].visited = true;
+
+        while (stack.length > 0) {
+            let current = stack[stack.length - 1];
+            let neighbors = [];
+            const dirs = [{dx:0, dy:-1}, {dx:1, dy:0}, {dx:0, dy:1}, {dx:-1, dy:0}];
+            
+            for (let d of dirs) {
+                let nx = current.x + d.dx, ny = current.y + d.dy;
+                if (nx >= 0 && nx < COLS && ny >= 0 && ny < ROWS && !maze[ny][nx].visited) 
+                    neighbors.push({x: nx, y: ny});
+            }
+
+            if (neighbors.length > 0) {
+                let next = neighbors[Math.floor(Math.random() * neighbors.length)];
+                let dx = current.x - next.x, dy = current.y - next.y;
+                
+                if (dx === 1) { maze[current.y][current.x].walls.left = false; maze[next.y][next.x].walls.right = false; }
+                else if (dx === -1) { maze[current.y][current.x].walls.right = false; maze[next.y][next.x].walls.left = false; }
+                if (dy === 1) { maze[current.y][current.x].walls.top = false; maze[next.y][next.x].walls.bottom = false; }
+                else if (dy === -1) { maze[current.y][current.x].walls.bottom = false; maze[next.y][next.x].walls.top = false; }
+                
+                maze[next.y][next.x].visited = true;
+                stack.push(next);
+            } else {
+                stack.pop();
+            }
+        }
     }
 
-    ctx.fillStyle = '#0f0';
-    ctx.shadowColor = '#0f0';
-    ctx.shadowBlur = 15;
-    ctx.fillRect(exit.x + 4, exit.y + 4, TILE - 8, TILE - 8);
-    ctx.shadowBlur = 0;
-
-    drawDino(player.x, player.y);
-    drawMonster(monster.x, monster.y);
-  }
-
-  function drawDino(x, y) {
-    ctx.save();
-    ctx.translate(x, y);
-
-    ctx.fillStyle = '#4a8f4a';
-    ctx.beginPath();
-    ctx.ellipse(0, -4, 20, 14, 0, 0, Math.PI*2);
-    ctx.fill();
-
-    ctx.fillStyle = '#2a7a2a';
-    ctx.beginPath();
-    ctx.arc(-16, -10, 12, 0, Math.PI*2);
-    ctx.fill();
-    ctx.fillStyle = '#fff';
-    ctx.beginPath();
-    ctx.arc(-11, -8, 4, 0, Math.PI*2);
-    ctx.fill();
-    ctx.fillStyle = '#000';
-    ctx.beginPath();
-    ctx.arc(-9, -7, 1.5, 0, Math.PI*2);
-    ctx.fill();
-
-    ctx.beginPath();
-    ctx.moveTo(20, -2);
-    ctx.lineTo(38, -6);
-    ctx.strokeStyle = '#4a8f4a';
-    ctx.lineWidth = 4;
-    ctx.stroke();
-
-    ctx.fillStyle = '#2a7a2a';
-    for (let i = 1; i <= 3; i++) {
-      const px = 20 + i * 6;
-      const py = -6 + (i % 2 ? -4 : 4);
-      ctx.beginPath();
-      ctx.moveTo(px, py);
-      ctx.lineTo(px + 8, py - 4);
-      ctx.lineTo(px + 8, py + 4);
-      ctx.closePath();
-      ctx.fill();
+    // --- ИГРОВОЙ ЦИКЛ ---
+    function startGame() {
+        generateMaze();
+        resize(); // Пересчитать размер после генерации
+        
+        player = { gx: 0, gy: 0, x: 0, y: 0, facingRight: true, isMoving: false };
+        exitPos = { x: COLS - 1, y: ROWS - 1 };
+        monster = { gx: COLS - 1, gy: 0, x: (COLS - 1) * CELL_SIZE, y: 0 };
+        
+        uiLayer.classList.add('hidden');
+        gameRunning = true;
+        
+        if (monsterInterval) clearInterval(monsterInterval);
+        monsterInterval = setInterval(moveMonsterLogic, 650); // Чуть медленнее для мобильных
+        
+        if (animationFrameId) cancelAnimationFrame(animationFrameId);
+        gameLoop();
     }
 
-    ctx.fillStyle = '#3a7a3a';
-    ctx.beginPath();
-    ctx.rect(-10, 10, 8, 14);
-    ctx.rect(2, 10, 8, 14);
-    ctx.fill();
+    function gameLoop() {
+        updateAnimations();
+        draw();
+        if (gameRunning) animationFrameId = requestAnimationFrame(gameLoop);
+    }
 
-    ctx.fillStyle = '#fff';
-    ctx.beginPath();
-    ctx.ellipse(0, -14, 6, 9, 0, 0, Math.PI
+    function updateAnimations() {
+        const targetX = player.gx * CELL_SIZE;
+        const targetY = player.gy * CELL_SIZE;
+        const dx = targetX - player.x;
+        const dy = targetY - player.y;
+        const dist = Math.sqrt(dx*dx + dy*dy);
 
+        if (dist < 1) {
+            player.x = targetX;
+            player.y = targetY;
+            player.isMoving = false;
+        } else {
+            player.x += dx * MOVE_SPEED;
+            player.y += dy * MOVE_SPEED;
+            player.isMoving = true;
+        }
+
+        // Плавный монстр
+        const mTargetX = monster.gx * CELL_SIZE;
+        const mTargetY = monster.gy * CELL_SIZE;
+        monster.x += (mTargetX - monster.x) * 0.15;
+        monster.y += (mTargetY - monster.y) * 0.15;
+    }
+
+    // --- ЛОГИКА МОНСТРА (BFS) ---
+    function moveMonsterLogic() {
+        if (!gameRunning) return;
+
+        let queue = [[{x: monster.gx, y: monster.gy}]];
+        let visited = new Set([`${monster.gx},${monster.gy}`]);
+        let path = null;
+
+        while (queue.length > 0) {
+            let currentPath = queue.shift();
+            let pos = currentPath[currentPath.length - 1];
+
+            if (pos.x === player.gx && pos.y === player.gy) { path = currentPath; break; }
+
+            const moves = [
+                {dx:0, dy:-1, wall:'top'}, {dx:1, dy:0, wall:'right'},
+                {dx:0, dy:1, wall:'bottom'}, {dx:-1, dy:0, wall:'left'}
+            ];
+
+            for (let m of moves) {
+                let nx = pos.x + m.dx, ny = pos.y + m.dy;
+                let key = `${nx},${ny}`;
+                if (nx >= 0 && nx < COLS && ny >= 0 && ny < ROWS && 
+                    !visited.has(key) && !maze[pos.y][pos.x].walls[m.wall]) {
+                    visited.add(key);
+                    queue.push([...currentPath, {x: nx, y: ny}]);
+                }
+            }
+        }
+
+        if (path && path.length > 1) {
+            monster.gx = path[1].x;
+            monster.gy = path[1].y;
+        }
+        checkWinLoss();
+    }
+
+    // --- УПРАВЛЕНИЕ ---
+    function handleInput(direction) {
+        if (!gameRunning || player.isMoving) return;
+        
+        let cell = maze[player.gy][player.gx];
+        let moved = false;
+
+        switch(direction) {
+            case 'up':    if (!cell.walls.top)    { player.gy--; moved = true; } break;
+            case 'right': if (!cell.walls.right)  { player.gx++; player.facingRight = true; moved = true; } break;
+            case 'down':  if (!cell.walls.bottom) { player.gy++; moved = true; } break;
+            case 'left':  if (!cell.walls.left)   { player.gx--; player.facingRight = false; moved = true; } break;
+        }
+
+        if (moved) checkWinLoss();
+    }
+
+    // 1. Клавиатура (для тестов на ПК)
+    document.addEventListener('keydown', (e) => {
+        switch(e.key) {
+            case 'ArrowUp': case 'w': case 'W': handleInput('up'); break;
+            case 'ArrowRight': case 'd': case 'D': handleInput('right'); break;
+            case 'ArrowDown': case 's': case 'S': handleInput('down'); break;
+            case 'ArrowLeft': case 'a': case 'A': handleInput('left'); break;
+        }
+    });
+
+    // 2. Экранные кнопки (Touch + Mouse)
+    const btns = {
+        'btn-up': 'up', 'btn-right': 'right', 
+        'btn-down': 'down', 'btn-left': 'left'
+    };
+
+    Object.keys(btns).forEach(id => {
+        const el = document.getElementById(id);
+        // Используем pointerdown для мгновенной реакции на мобильных
+        el.addEventListener('pointerdown', (e) => {
+            e.preventDefault();
+            el.classList.add('pressed');
+            handleInput(btns[id]);
+            setTimeout(() => el.classList.remove('pressed'), 150);
+        });
+    });
+
+    // 3. Свайпы
+    let touchStartX = 0, touchStartY = 0;
+    document.addEventListener('touchstart', (e) => {
+        touchStartX = e.changedTouches[0].screenX;
+        touchStartY = e.changedTouches[0].screenY;
+    }, {passive: false});
+
+    document.addEventListener('touchend', (e) => {
+        const dx = e.changedTouches[0].screenX - touchStartX;
+        const dy = e.changedTouches[0].screenY - touchStartY;
+        
+        if (Math.abs(dx) < 30 && Math.abs(dy) < 30) return; // Тап, не свайп
+
+        if (Math.abs(dx) > Math.abs(dy)) {
+            handleInput(dx > 0 ? 'right' : 'left');
+        } else {
+            handleInput(dy > 0 ? 'down' : 'up');
+        }
+    }, {passive: false});
+
+    // Предотвращение скролла и зума
+    document.addEventListener('touchmove', (e) => e.preventDefault(), { passive: false });
+
+    // --- ПРОВЕРКА ПОБЕДЫ/ПОРАЖЕНИЯ ---
+    function checkWinLoss() {
+        if (player.gx === exitPos.x && player.gy === exitPos.y) gameOver(true);
+        else if (player.gx === monster.gx && player.gy === monster.gy) gameOver(false);
+    }
+
+    function gameOver(win) {
+        gameRunning = false;
+        clearInterval(monsterInterval);
+        cancelAnimationFrame(animationFrameId);
+        draw();
+        
+        uiLayer.classList.remove('hidden');
+        msgTitle.innerText = win ? "🎉 ПОБЕДА!" : "💀 ПОЙМАН!";
+        msgTitle.style.color = win ? "#2ecc71" : "#e74c3c";
+        msgDesc.innerHTML = win 
+            ? "Ты и твой динозавр спаслись!<br>Попробуй еще раз?" 
+            : "Монстр оказался быстрее...<br>Попробуй еще раз?";
+    }
+
+    // --- ОТРИСОВКА ---
+    function draw() {
+        ctx.fillStyle = '#34495e';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Стены
+        ctx.strokeStyle = '#ecf0f1';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        for (let y = 0; y < ROWS; y++) {
+            for (let x = 0; x < COLS; x++) {
+                let cx = x * CELL_SIZE, cy = y * CELL_SIZE;
+                let w = maze[y][x].walls;
+                if (w.top) { ctx.moveTo(cx, cy); ctx.lineTo(cx + CELL_SIZE, cy); }
+                if (w.right) { ctx.moveTo(cx + CELL_SIZE, cy); ctx.lineTo(cx + CELL_SIZE, cy + CELL_SIZE); }
+                if (w.bottom) { ctx.moveTo(cx + CELL_SIZE, cy + CELL_SIZE); ctx.lineTo(cx, cy + CELL_SIZE); }
+                if (w.left) { ctx.moveTo(cx, cy + CELL_SIZE); ctx.lineTo(cx, cy); }
+            }
+        }
+        ctx.stroke();
+
+        const off = CELL_SIZE / 2;
+        const fontSize = Math.floor(CELL_SIZE * 0.7);
+        ctx.font = `${fontSize}px Arial`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+
+        // Выход
+        ctx.fillText('🚪', exitPos.x * CELL_SIZE + off, exitPos.y * CELL_SIZE + off);
+        
+        // Монстр
+        ctx.fillText('👹', monster.x + off, monster.y + off);
+
+        // Динозавр с зеркальным отражением
+        ctx.save();
+        ctx.translate(player.x + off, player.y + off);
+        if (!player.facingRight) ctx.scale(-1, 1);
+        ctx.fillText('🦕', 0, 0);
+        ctx.restore();
+    }
+</script>
+</body>
+</html>
