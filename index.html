@@ -147,7 +147,6 @@
   const canvas = document.getElementById('gameCanvas');
   const ctx = canvas.getContext('2d');
 
-  // Настройка размера
   function resize() {
     const size = Math.min(window.innerWidth, window.innerHeight) * 0.9;
     canvas.width = size;
@@ -156,7 +155,6 @@
   window.addEventListener('resize', resize);
   resize();
 
-  // Константы
   const TILE = 40;
   const COLS = Math.floor(canvas.width / TILE);
   const ROWS = Math.floor(canvas.height / TILE);
@@ -174,7 +172,6 @@
   let gameActive = false;
   let frameId;
 
-  // UI элементы
   const startOverlay = document.getElementById('startOverlay');
   const endOverlay = document.getElementById('endOverlay');
   const statusText = document.getElementById('statusText');
@@ -183,7 +180,6 @@
   const endTitle = document.getElementById('endTitle');
   const endDesc = document.getElementById('endDesc');
 
-  // Управление
   const keys = { up: false, down: false, left: false, right: false };
   window.addEventListener('keydown', e => {
     if (e.key === 'ArrowUp') keys.up = true;
@@ -198,7 +194,6 @@
     if (e.key === 'ArrowRight') keys.right = false;
   });
 
-  // Кнопки
   ['Up','Down','Left','Right'].forEach(dir => {
     const btn = document.getElementById('btn' + dir);
     btn.addEventListener('pointerdown', () => keys[dir.toLowerCase()] = true);
@@ -214,20 +209,17 @@
         if (r === 0 || r === ROWS - 1 || c === 0 || c === COLS - 1) {
           row.push(WALL);
         } else {
-          // 35% шанс стены
           row.push(Math.random() < 0.35 ? WALL : EMPTY);
         }
       }
       grid.push(row);
     }
 
-    // Гарантированный старт и выход
     player.x = TILE * 2;
     player.y = TILE * 2;
     exit.x = TILE * (COLS - 3);
     exit.y = TILE * (ROWS - 3);
 
-    // Монстр — где-то в середине, но не слишком близко к игроку
     monster.x = TILE * Math.floor(COLS / 2);
     monster.y = TILE * Math.floor(ROWS / 2);
 
@@ -235,7 +227,6 @@
     timeLeft = 60;
   }
 
-  // Проверка коллизии с сеткой (возвращает true, если клетка — стена)
   function isWall(x, y) {
     const col = Math.floor(x / TILE);
     const row = Math.floor(y / TILE);
@@ -243,9 +234,7 @@
     return grid[row][col] === WALL;
   }
 
-  // Проверка, можно ли пройти в точку (x,y) с учётом размера хитбокса
   function canMoveTo(x, y, size = 20) {
-    // Проверяем 4 угла хитбокса
     const corners = [
       {x: x - size/2, y: y - size/2},
       {x: x + size/2, y: y - size/2},
@@ -261,29 +250,23 @@
   function update() {
     if (!gameActive) return;
 
-    // Движение игрока
+    // Игрок
     player.vx = player.vy = 0;
     if (keys.up) player.vy -= player.speed;
     if (keys.down) player.vy += player.speed;
     if (keys.left) player.vx -= player.speed;
     if (keys.right) player.vx += player.speed;
 
-    // Коллизия игрока: пробуем двигаться по X, потом по Y
     let nextX = player.x + player.vx;
     let nextY = player.y + player.vy;
 
-    if (canMoveTo(nextX, player.y)) {
-      player.x = nextX;
-    }
-    if (canMoveTo(player.x, nextY)) {
-      player.y = nextY;
-    }
+    if (canMoveTo(nextX, player.y)) player.x = nextX;
+    if (canMoveTo(player.x, nextY)) player.y = nextY;
 
-    // Ограничение по экрану
     player.x = Math.max(TILE + 10, Math.min(canvas.width - TILE - 10, player.x));
     player.y = Math.max(TILE + 10, Math.min(canvas.height - TILE - 10, player.y));
 
-    // Движение монстра с коллизиями (как у игрока)
+    // Монстр (с коллизиями)
     const dx = player.x - monster.x;
     const dy = player.y - monster.y;
     const dist = Math.hypot(dx, dy);
@@ -297,25 +280,13 @@
     nextX = monster.x + monster.vx;
     nextY = monster.y + monster.vy;
 
-    // Пробуем сначала по X, потом по Y (чтобы не застревал в углах)
-    if (canMoveTo(nextX, monster.y, 22)) {
-      monster.x = nextX;
-    }
-    if (canMoveTo(monster.x, nextY, 22)) {
-      monster.y = nextY;
-    }
+    if (canMoveTo(nextX, monster.y, 22)) monster.x = nextX;
+    if (canMoveTo(monster.x, nextY, 22)) monster.y = nextY;
 
-    // Проверка: игрок коснулся выхода
-    if (Math.abs(player.x - exit.x) < TILE - 4 && Math.abs(player.y - exit.y) < TILE - 4) {
-      winGame();
-    }
+    if (Math.abs(player.x - exit.x) < TILE - 4 && Math.abs(player.y - exit.y) < TILE - 4) winGame();
+    if (Math.hypot(player.x - monster.x, player.y - monster.y) < 35) loseGame();
 
-    // Проверка: монстр поймал игрока
-    if (Math.hypot(player.x - monster.x, player.y - monster.y) < 35) {
-      loseGame();
-    }
-
-    timeLeft -= 1 / 60; // ~1 сек за 60 кадров
+    timeLeft -= 1 / 60;
     if (timeLeft <= 0) loseGame();
 
     updateUI();
@@ -325,7 +296,6 @@
     ctx.fillStyle = '#111';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Рисуем лабиринт
     for (let r = 0; r < ROWS; r++) {
       for (let c = 0; c < COLS; c++) {
         if (grid[r][c] === WALL) {
@@ -339,17 +309,13 @@
       }
     }
 
-    // Выход
     ctx.fillStyle = '#0f0';
     ctx.shadowColor = '#0f0';
     ctx.shadowBlur = 15;
     ctx.fillRect(exit.x + 4, exit.y + 4, TILE - 8, TILE - 8);
     ctx.shadowBlur = 0;
 
-    // Динозавр (игрок)
     drawDino(player.x, player.y);
-
-    // Монстр
     drawMonster(monster.x, monster.y);
   }
 
@@ -357,18 +323,15 @@
     ctx.save();
     ctx.translate(x, y);
 
-    // Тело динозавра (более выразительное)
     ctx.fillStyle = '#4a8f4a';
     ctx.beginPath();
     ctx.ellipse(0, -4, 20, 14, 0, 0, Math.PI*2);
     ctx.fill();
 
-    // Голова
     ctx.fillStyle = '#2a7a2a';
     ctx.beginPath();
     ctx.arc(-16, -10, 12, 0, Math.PI*2);
     ctx.fill();
-    // Глаз
     ctx.fillStyle = '#fff';
     ctx.beginPath();
     ctx.arc(-11, -8, 4, 0, Math.PI*2);
@@ -378,16 +341,13 @@
     ctx.arc(-9, -7, 1.5, 0, Math.PI*2);
     ctx.fill();
 
-    // Хвост с шипами
     ctx.beginPath();
     ctx.moveTo(20, -2);
     ctx.lineTo(38, -6);
-    ctx.strokeStyle = '#4a8f
     ctx.strokeStyle = '#4a8f4a';
     ctx.lineWidth = 4;
     ctx.stroke();
 
-    // Шипы на хвосте
     ctx.fillStyle = '#2a7a2a';
     for (let i = 1; i <= 3; i++) {
       const px = 20 + i * 6;
@@ -400,164 +360,13 @@
       ctx.fill();
     }
 
-    // Ноги
     ctx.fillStyle = '#3a7a3a';
     ctx.beginPath();
-    ctx.rect(-10, 10, 8, 14); // левая
-    ctx.rect(2, 10, 8, 14);  // правая
+    ctx.rect(-10, 10, 8, 14);
+    ctx.rect(2, 10, 8, 14);
     ctx.fill();
 
-    // Всадник (более детализированный)
     ctx.fillStyle = '#fff';
     ctx.beginPath();
-    ctx.ellipse(0, -14, 6, 9, 0, 0, Math.PI*2); // тело
-    ctx.fill();
+    ctx.ellipse(0, -14, 6, 9, 0, 0, Math.PI
 
-    ctx.fillStyle = '#ff0'; // шлем
-    ctx.beginPath();
-    ctx.arc(0, -22, 5, 0, Math.PI*2);
-    ctx.fill();
-
-    ctx.fillStyle = '#000'; // глаза всадника
-    ctx.beginPath();
-    ctx.arc(-2, -21, 1.5, 0, Math.PI*2);
-    ctx.arc(2, -21, 1.5, 0, Math.PI*2);
-    ctx.fill();
-
-    ctx.restore();
-  }
-
-  function drawMonster(x, y) {
-    ctx.save();
-    ctx.translate(x, y);
-
-    // Тело монстра (с градиентом для объёма)
-    const grd = ctx.createRadialGradient(0, 0, 5, 0, 0, 22);
-    grd.addColorStop(0, '#aa0000');
-    grd.addColorStop(1, '#550000');
-    ctx.fillStyle = grd;
-    ctx.shadowColor = '#ff0000';
-    ctx.shadowBlur = 15;
-    ctx.beginPath();
-    ctx.ellipse(0, 0, 22, 18, 0, 0, Math.PI*2);
-    ctx.fill();
-    ctx.shadowBlur = 0;
-
-    // Глаза (светящиеся)
-    ctx.fillStyle = '#fff';
-    ctx.beginPath();
-    ctx.arc(-9, -5, 4, 0, Math.PI*2);
-    ctx.arc(9, -5, 4, 0, Math.PI*2);
-    ctx.fill();
-
-    ctx.fillStyle = '#000';
-    ctx.beginPath();
-    ctx.arc(-8, -4, 1.8, 0, Math.PI*2);
-    ctx.arc(8, -4, 1.8, 0, Math.PI*2);
-    ctx.fill();
-
-    // Пасть с зубами
-    ctx.fillStyle = '#330000';
-    ctx.beginPath();
-    ctx.moveTo(-16, 8);
-    ctx.lineTo(16, 8);
-    ctx.lineTo(0, 24);
-    ctx.closePath();
-    ctx.fill();
-
-    // Зубы
-    ctx.fillStyle = '#fff';
-    for (let t = -12; t <= 12; t += 6) {
-      ctx.beginPath();
-      ctx.moveTo(t, 8);
-      ctx.lineTo(t + 4, 8);
-      ctx.lineTo(t + 2, 16);
-      ctx.closePath();
-      ctx.fill();
-    }
-
-    // Когти/шипы по бокам (чтобы выглядел агрессивнее)
-    ctx.fillStyle = '#770000';
-    const spikes = [
-      {x: -24, y: -4}, {x: -26, y: 4},
-      {x: 24, y: -4},  {x: 26, y: 4}
-    ];
-    spikes.forEach(s => {
-      ctx.beginPath();
-      ctx.moveTo(s.x, s.y);
-      ctx.lineTo(s.x - 8, s.y - 4);
-      ctx.lineTo(s.x - 8, s.y + 4);
-      ctx.closePath();
-      ctx.fill();
-    });
-
-    ctx.restore();
-  }
-
-  function updateUI() {
-    timerText.textContent = 'Время: ' + Math.max(0, Math.floor(timeLeft));
-    scoreText.textContent = 'Счёт: ' + score;
-  }
-
-  function winGame() {
-    gameActive = false;
-    statusText.textContent = 'ПОБЕДА!';
-    statusText.style.color = '#0f0';
-    score += 100;
-    updateUI();
-    showEndScreen('🎉 ПОБЕДА! 🎉', 'Ты сбежал из лабиринта!');
-  }
-
-  function loseGame() {
-    gameActive = false;
-    statusText.textContent = 'ПРОИГРАЛ';
-    statusText.style.color = '#f00';
-    showEndScreen('💀 ТЕБЯ ПОЙМАЛИ 💀', 'Попробуй ещё раз!');
-  }
-
-  function showEndScreen(title, desc) {
-    endTitle.textContent = title;
-    endDesc.textContent = desc;
-    endOverlay.classList.remove('hidden');
-    cancelAnimationFrame(frameId);
-  }
-
-  function startGame() {
-    generateMaze();
-    startOverlay.classList.add('hidden');
-    endOverlay.classList.add('hidden');
-    gameActive = true;
-    timeLeft = 60;
-    score = 0;
-    updateUI();
-    loop();
-  }
-
-  function restartGame() {
-    startGame();
-  }
-
-  function loop() {
-    if (!gameActive) return;
-    update();
-    draw();
-    frameId = requestAnimationFrame(loop);
-  }
-
-  // Обработчики кнопок
-  document.getElementById('startBtn').addEventListener('click', startGame);
-  document.getElementById('restartBtn').addEventListener('click', restartGame);
-
-  // Старт по тапу по холсту (для мобильных)
-  canvas.addEventListener('pointerdown', (e) => {
-    if (gameActive === false && endOverlay.classList.contains('hidden')) {
-      // Если игра не активна и экран конца скрыт — пробуем стартовать, если видим стартовый экран
-      if (startOverlay.style.display !== 'none' || startOverlay.offsetParent !== null) {
-        startGame();
-      }
-    }
-  });
-})();
-</script>
-</body>
-</html>
