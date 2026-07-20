@@ -155,6 +155,7 @@
     const COLS = 11; // Нечетное число лучше для алгоритма
     const ROWS = 11;
     const MOVE_SPEED = 0.25;
+    const MONSTER_MOVE_INTERVAL = 1500; // Монстр двигается раз в 1.5 секунды (медленнее игрока)
     let CELL_SIZE = 30;
 
     let maze = [];
@@ -239,7 +240,8 @@
         gameRunning = true;
         
         if (monsterInterval) clearInterval(monsterInterval);
-        monsterInterval = setInterval(moveMonsterLogic, 650); // Чуть медленнее для мобильных
+        // Запускаем интервал с новой, более медленной скоростью
+        monsterInterval = setInterval(moveMonsterLogic, MONSTER_MOVE_INTERVAL); 
         
         if (animationFrameId) cancelAnimationFrame(animationFrameId);
         gameLoop();
