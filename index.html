@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Побег Раптора: Landscape</title>
+    <title>Побег Раптора: Fullscreen</title>
     <style>
         body {
             background-color: #2c3e50;
@@ -31,7 +31,8 @@
             box-sizing: border-box;
             position: relative;
             z-index: 10;
-            flex-shrink: 0;
+            flex-shrink: 0; /* Не сжимать шапку */
+            background: #2c3e50;
         }
 
         h1 { 
@@ -51,7 +52,6 @@
             padding: 5px 10px;
             border-radius: 5px;
             cursor: pointer;
-            z-index: 100;
         }
 
         /* Контейнер игры */
@@ -61,12 +61,11 @@
             border: 3px solid #ecf0f1;
             border-radius: 8px;
             background: #34495e;
-            max-height: 55vh; 
-            width: auto;
-            transition: all 0.3s ease;
+            /* Размеры теперь контролируются JS для идеальной подгонки */
             display: flex;
             justify-content: center;
             align-items: center;
+            transition: all 0.3s ease;
         }
 
         canvas { display: block; }
@@ -103,7 +102,7 @@
         }
         button.start-btn:active { transform: translateY(4px); box-shadow: none; }
 
-        /* Кнопки управления (Обычный режим) */
+        /* Кнопки управления */
         #controls {
             width: 100%;
             max-width: 280px;
@@ -114,8 +113,7 @@
             gap: 10px;
             padding: 10px;
             margin-bottom: 20px;
-            flex-shrink: 0;
-            transition: all 0.3s ease;
+            flex-shrink: 0; /* Не сжимать блок кнопок */
             z-index: 100;
         }
 
@@ -144,65 +142,39 @@
         #btn-down { grid-column: 2; grid-row: 2; }
         #btn-right { grid-column: 3; grid-row: 2; }
 
-        /* --- СТИЛИ ДЛЯ ПОЛНОЭКРАННОГО РЕЖИМА (ГОРИЗОНТАЛЬНЫЙ) --- */
+        /* --- СТИЛИ ДЛЯ ПОЛНОЭКРАННОГО РЕЖИМА --- */
         body.fullscreen-mode {
-            display: block; /* Убираем флекс для полного контроля */
+            justify-content: center;
             background: #34495e;
         }
 
-        body.fullscreen-mode header {
-            display: none; /* Скрываем шапку в игре */
-        }
-
         body.fullscreen-mode #game-container {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
             border: none;
             border-radius: 0;
             box-shadow: none;
             background: transparent;
-            width: auto;
-            height: auto;
-            max-height: none;
         }
 
-        /* Кнопки в фуллскрине: Левая часть (Влево/Вниз) и Правая часть (Вправо/Вверх) */
+        /* В фуллскрине кнопки становятся полупрозрачными и накладываются поверх игры */
         body.fullscreen-mode #controls {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            margin: 0;
-            padding: 0;
-            display: grid;
-            grid-template-columns: 1fr 1fr; /* Две большие зоны */
-            grid-template-rows: 1fr;
-            gap: 0;
-            opacity: 1;
-            pointer-events: none; /* Пропускаем клики сквозь контейнер */
-        }
-
-        /* Перераспределяем кнопки по углам экрана */
-        body.fullscreen-mode .ctrl-btn {
             position: absolute;
-            width: 80px;
-            height: 80px;
-            font-size: 40px;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0.5; 
+            margin: 0;
+            height: 180px;
+        }
+        
+        body.fullscreen-mode .ctrl-btn {
             background: rgba(0, 0, 0, 0.3);
-            border: 2px solid rgba(255,255,255,0.1);
-            pointer-events: auto; /* Возвращаем клики кнопкам */
         }
 
-        /* Левая рука (повороты) */
-        body.fullscreen-mode #btn-left { bottom: 30px; left: 30px; }
-        body.fullscreen-mode #btn-down { bottom: 30px; left: 120px; }
-        
-        /* Правая рука (газ/тормоз или просто вперед) */
-        body.fullscreen-mode #btn-right { bottom: 30px; right: 30px; }
-        body.fullscreen-mode #btn-up { bottom: 30px; right: 120px; }
+        body.fullscreen-mode .ctrl-btn:active, 
+        body.fullscreen-mode .ctrl-btn.pressed {
+            opacity: 1;
+            background: rgba(46, 204, 113, 0.6);
+        }
 
         @media (max-height: 600px) {
             h1 { font-size: 16px; }
@@ -282,31 +254,35 @@
         } else {
             document.body.classList.remove('fullscreen-mode');
         }
+        // Пересчитываем размер с небольшой задержкой
         setTimeout(resize, 100); 
     });
 
-    // --- АДАПТИВНЫЙ РАЗМЕР ---
+    // --- УМНЫЙ РЕСАЙЗ (ЧТОБЫ ВСЁ БЫЛО ВИДНО) ---
     function resize() {
         const isFS = document.body.classList.contains('fullscreen-mode');
         
         let availableWidth, availableHeight;
 
         if (isFS) {
-            // В фуллскрине (горизонтальном) учитываем, что кнопки занимают место по бокам
-            // Оставляем примерно по 150px с каждой стороны под кнопки
-            availableWidth = window.innerWidth - 300; 
-            availableHeight = window.innerHeight - 40; // Небольшой отступ сверху/снизу
+            // В фуллскрине мы хотим видеть ВСЁ.
+            // Берем полную ширину экрана
+            availableWidth = window.innerWidth;
+            // Из высоты вычитаем место под шапку (~50px) и зону кнопок снизу (~200px)
+            // Это гарантирует, что лабиринт не залезет под кнопки
+            availableHeight = window.innerHeight - 250; 
         } else {
-            // В обычном режиме
+            // В обычном режиме используем старые пропорции
             availableWidth = window.innerWidth * 0.95;
             availableHeight = window.innerHeight * 0.55;
         }
         
-        const cellW = Math.floor(availableWidth / COLS);
-        const cellH = Math.floor(availableHeight / ROWS);
+        // Рассчитываем максимальный размер клетки, который влезет и по ширине, и по высоте
+        const cellByWidth = Math.floor(availableWidth / COLS);
+        const cellByHeight = Math.floor(availableHeight / ROWS);
         
-        // Выбираем меньший размер, чтобы влезло и по ширине, и по высоте
-        CELL_SIZE = Math.min(cellW, cellH, 60); 
+        // Выбираем меньшее значение, чтобы ничего не обрезалось
+        CELL_SIZE = Math.min(cellByWidth, cellByHeight, 60); 
 
         canvas.width = COLS * CELL_SIZE;
         canvas.height = ROWS * CELL_SIZE;
@@ -590,3 +566,6 @@
 </script>
 </body>
 </html>
+
+
+
