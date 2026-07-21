@@ -2,9 +2,9 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <!-- Фиксируем масштаб и запрещаем зум для ощущения нативного приложения -->
+    <!-- Фиксируем масштаб и запрещаем зум -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Побег Раптора: Мобильная</title>
+    <title>Побег Раптора: Fullscreen</title>
     <style>
         body {
             background-color: #2c3e50;
@@ -17,16 +17,40 @@
             height: 100vh;
             margin: 0;
             overflow: hidden;
-            touch-action: none; /* Отключаем стандартные жесты браузера */
+            touch-action: none;
             user-select: none;
             -webkit-user-select: none;
         }
 
+        /* Шапка с кнопкой фуллскрина */
+        header {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+            box-sizing: border-box;
+            position: relative;
+            z-index: 10;
+        }
+
         h1 { 
-            margin: 10px 0; 
+            margin: 0; 
             font-size: 20px; 
             text-align: center;
             pointer-events: none;
+        }
+
+        .fs-btn {
+            position: absolute;
+            right: 20px;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            font-size: 20px;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
         }
 
         #game-container {
@@ -35,9 +59,9 @@
             border: 3px solid #ecf0f1;
             border-radius: 8px;
             background: #34495e;
-            /* Размер задается JS, но ставим ограничения */
             max-width: 95vw;
             max-height: 55vh; 
+            transition: all 0.3s ease;
         }
 
         canvas { display: block; }
@@ -74,7 +98,7 @@
         }
         button.start-btn:active { transform: translateY(4px); box-shadow: none; }
 
-        /* МОБИЛЬНОЕ УПРАВЛЕНИЕ (D-PAD) */
+        /* МОБИЛЬНОЕ УПРАВЛЕНИЕ */
         #controls {
             width: 100%;
             max-width: 280px;
@@ -85,6 +109,7 @@
             gap: 10px;
             padding: 10px;
             margin-bottom: 20px;
+            transition: all 0.3s ease;
         }
 
         .ctrl-btn {
@@ -107,29 +132,64 @@
             transform: scale(0.95);
         }
 
-        /* Расположение кнопок */
         #btn-up { grid-column: 2; grid-row: 1; }
         #btn-left { grid-column: 1; grid-row: 2; }
         #btn-down { grid-column: 2; grid-row: 2; }
         #btn-right { grid-column: 3; grid-row: 2; }
 
+        /* --- СТИЛИ ДЛЯ ПОЛНОЭКРАННОГО РЕЖИМА --- */
+        body.fullscreen-mode {
+            justify-content: center; /* Центрируем контент */
+        }
+
+        body.fullscreen-mode #game-container {
+            width: 100vw;
+            height: 100vh;
+            max-width: none;
+            max-height: none;
+            border: none;
+            border-radius: 0;
+        }
+
+        /* В фуллскрине кнопки становятся прозрачнее и ложатся поверх игры внизу */
+        body.fullscreen-mode #controls {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0.6; /* Полупрозрачные, чтобы видеть игру */
+            margin: 0;
+            z-index: 50;
+        }
+        
+        body.fullscreen-mode header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 50;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
+        }
+
         @media (max-height: 600px) {
-            h1 { font-size: 16px; margin: 5px 0; }
-            #controls { height: 130px; margin-bottom: 5px; gap: 5px; }
+            h1 { font-size: 16px; }
+            #controls { height: 130px; gap: 5px; }
             .ctrl-btn { font-size: 24px; border-radius: 10px; }
         }
     </style>
 </head>
 <body>
 
-    <h1>🦖 Побег Раптора 👹</h1>
+    <header>
+        <h1>🦖 Побег Раптора 👹</h1>
+        <button class="fs-btn" onclick="toggleFullScreen()">[ ]</button>
+    </header>
     
     <div id="game-container">
         <canvas id="mazeCanvas"></canvas>
         <div id="ui-layer">
             <h2 id="msg-title">Готов?</h2>
             <p id="msg-desc" style="font-size: 16px; line-height: 1.4;">
-                Используй кнопки внизу<br>или свайпы по экрану.<br>
+                Используй кнопки или свайпы.<br>
                 Найди выход 🚪 раньше монстра!
             </p>
             <button class="start-btn" onclick="startGame()">ИГРАТЬ</button>
@@ -152,11 +212,11 @@
     const msgDesc = document.getElementById('msg-desc');
 
     // Настройки
-    const COLS = 11; // Нечетное число лучше для алгоритма
+    const COLS = 11; 
     const ROWS = 11;
-    const MOVE_SPEED = 0.35; // Увеличили скорость для раптора
-    const MONSTER_MOVE_INTERVAL = 1200; // Скорость монстра
-    const MONSTER_VISION = 3; // Радиус зрения монстра (в клетках)
+    const MOVE_SPEED = 0.35; 
+    const MONSTER_MOVE_INTERVAL = 1200; 
+    const MONSTER_VISION = 3; 
     let CELL_SIZE = 30;
 
     let maze = [];
@@ -168,14 +228,43 @@
     let monster = { gx: 0, gy: 0, x: 0, y: 0 };
     let exitPos = { x: 0, y: 0 };
 
+    // --- ЛОГИКА ПОЛНОЭКРАННОГО РЕЖИМА ---
+    function toggleFullScreen() {
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen().catch(err => {
+                console.log(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
+            });
+            document.body.classList.add('fullscreen-mode');
+        } else {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            }
+            document.body.classList.remove('fullscreen-mode');
+        }
+    }
+
+    // Слушаем изменение размера окна (в т.ч. при выходе из фуллскрина)
+    document.addEventListener('fullscreenchange', () => {
+        if (!document.fullscreenElement) {
+            document.body.classList.remove('fullscreen-mode');
+        }
+        resize(); // Пересчитываем размер канваса
+    });
+
     // --- АДАПТИВНЫЙ РАЗМЕР ---
     function resize() {
-        const maxWidth = window.innerWidth * 0.95;
-        const maxHeight = window.innerHeight * 0.55; 
+        // Если мы в фуллскрине, используем все окно, иначе ограничиваем
+        const isFS = document.body.classList.contains('fullscreen-mode');
+        
+        // В фуллскрине оставляем место под кнопки снизу (примерно 200px)
+        const availableHeight = isFS ? window.innerHeight - 200 : window.innerHeight * 0.55;
+        const maxWidth = isFS ? window.innerWidth : window.innerWidth * 0.95;
         
         const cellW = Math.floor(maxWidth / COLS);
-        const cellH = Math.floor(maxHeight / ROWS);
-        CELL_SIZE = Math.min(cellW, cellH, 45);
+        const cellH = Math.floor(availableHeight / ROWS);
+        
+        // Ограничиваем максимальный размер клетки, чтобы не было слишком крупно на ПК
+        CELL_SIZE = Math.min(cellW, cellH, isFS ? 60 : 45);
 
         canvas.width = COLS * CELL_SIZE;
         canvas.height = ROWS * CELL_SIZE;
@@ -231,7 +320,7 @@
     // --- ИГРОВОЙ ЦИКЛ ---
     function startGame() {
         generateMaze();
-        resize(); // Пересчитать размер после генерации
+        resize(); 
         
         player = { gx: 0, gy: 0, x: 0, y: 0, facingRight: true, isMoving: false };
         exitPos = { x: COLS - 1, y: ROWS - 1 };
@@ -270,31 +359,25 @@
             player.isMoving = true;
         }
 
-        // Плавный монстр
         const mTargetX = monster.gx * CELL_SIZE;
         const mTargetY = monster.gy * CELL_SIZE;
         monster.x += (mTargetX - monster.x) * 0.15;
         monster.y += (mTargetY - monster.y) * 0.15;
     }
 
-    // --- ЛОГИКА МОНСТРА (УМНЫЙ + ТУПОЙ) ---
+    // --- ЛОГИКА МОНСТРА ---
     function moveMonsterLogic() {
         if (!gameRunning) return;
-
-        // 1. Проверяем дистанцию до игрока
         const dist = Math.abs(player.gx - monster.gx) + Math.abs(player.gy - monster.gy);
 
-        // Если игрок близко - используем умный поиск (BFS)
         if (dist <= MONSTER_VISION) {
             chasePlayer();
         } else {
-            // Если игрок далеко - бродим случайно
             wanderRandomly();
         }
         checkWinLoss();
     }
 
-    // Умное преследование (когда видит игрока)
     function chasePlayer() {
         let queue = [[{x: monster.gx, y: monster.gy}]];
         let visited = new Set([`${monster.gx},${monster.gy}`]);
@@ -328,27 +411,21 @@
         }
     }
 
-    // Тупое блуждание (когда не видит игрока)
     function wanderRandomly() {
         const moves = [
             {dx:0, dy:-1, wall:'top'}, {dx:1, dy:0, wall:'right'},
             {dx:0, dy:1, wall:'bottom'}, {dx:-1, dy:0, wall:'left'}
         ];
-        
-        // Перемешиваем направления, чтобы выбор был случайным
         moves.sort(() => Math.random() - 0.5);
 
         for (let m of moves) {
             let nx = monster.gx + m.dx;
             let ny = monster.gy + m.dy;
-            
-            // Проверяем, нет ли стены и в пределах ли карты
             if (nx >= 0 && nx < COLS && ny >= 0 && ny < ROWS && 
                 !maze[monster.gy][monster.gx].walls[m.wall]) {
-                
                 monster.gx = nx;
                 monster.gy = ny;
-                return; // Делаем один шаг и выходим
+                return;
             }
         }
     }
@@ -370,7 +447,6 @@
         if (moved) checkWinLoss();
     }
 
-    // 1. Клавиатура (для тестов на ПК)
     document.addEventListener('keydown', (e) => {
         switch(e.key) {
             case 'ArrowUp': case 'w': case 'W': handleInput('up'); break;
@@ -380,7 +456,6 @@
         }
     });
 
-    // 2. Экранные кнопки (Touch + Mouse)
     const btns = {
         'btn-up': 'up', 'btn-right': 'right', 
         'btn-down': 'down', 'btn-left': 'left'
@@ -388,7 +463,6 @@
 
     Object.keys(btns).forEach(id => {
         const el = document.getElementById(id);
-        // Используем pointerdown для мгновенной реакции на мобильных
         el.addEventListener('pointerdown', (e) => {
             e.preventDefault();
             el.classList.add('pressed');
@@ -397,7 +471,6 @@
         });
     });
 
-    // 3. Свайпы
     let touchStartX = 0, touchStartY = 0;
     document.addEventListener('touchstart', (e) => {
         touchStartX = e.changedTouches[0].screenX;
@@ -408,7 +481,7 @@
         const dx = e.changedTouches[0].screenX - touchStartX;
         const dy = e.changedTouches[0].screenY - touchStartY;
         
-        if (Math.abs(dx) < 30 && Math.abs(dy) < 30) return; // Тап, не свайп
+        if (Math.abs(dx) < 30 && Math.abs(dy) < 30) return; 
 
         if (Math.abs(dx) > Math.abs(dy)) {
             handleInput(dx > 0 ? 'right' : 'left');
@@ -417,10 +490,8 @@
         }
     }, {passive: false});
 
-    // Предотвращение скролла и зума
     document.addEventListener('touchmove', (e) => e.preventDefault(), { passive: false });
 
-    // --- ПРОВЕРКА ПОБЕДЫ/ПОРАЖЕНИЯ ---
     function checkWinLoss() {
         if (player.gx === exitPos.x && player.gy === exitPos.y) gameOver(true);
         else if (player.gx === monster.gx && player.gy === monster.gy) gameOver(false);
@@ -440,12 +511,10 @@
             : "Монстр оказался хитрее...<br>Попробуй еще раз?";
     }
 
-    // --- ОТРИСОВКА ---
     function draw() {
         ctx.fillStyle = '#34495e';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // Стены
         ctx.strokeStyle = '#ecf0f1';
         ctx.lineWidth = 2;
         ctx.beginPath();
@@ -467,13 +536,9 @@
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
 
-        // Выход
         ctx.fillText('🚪', exitPos.x * CELL_SIZE + off, exitPos.y * CELL_SIZE + off);
-        
-        // Монстр
         ctx.fillText('👹', monster.x + off, monster.y + off);
 
-        // РАПТОР (T-Rex) с зеркальным отражением
         ctx.save();
         ctx.translate(player.x + off, player.y + off);
         if (!player.facingRight) ctx.scale(-1, 1);
