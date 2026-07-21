@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <!-- Фиксируем масштаб и запрещаем зум для ощущения нативного приложения -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Побег Динозавра: Мобильная</title>
+    <title>Побег Раптора: Мобильная</title>
     <style>
         body {
             background-color: #2c3e50;
@@ -122,7 +122,7 @@
 </head>
 <body>
 
-    <h1>🦕 Побег из Лабиринта 👹</h1>
+    <h1>🦖 Побег Раптора 👹</h1>
     
     <div id="game-container">
         <canvas id="mazeCanvas"></canvas>
@@ -154,8 +154,9 @@
     // Настройки
     const COLS = 11; // Нечетное число лучше для алгоритма
     const ROWS = 11;
-    const MOVE_SPEED = 0.25;
-    const MONSTER_MOVE_INTERVAL = 1500; // Монстр двигается раз в 1.5 секунды (медленнее игрока)
+    const MOVE_SPEED = 0.35; // Увеличили скорость для раптора
+    const MONSTER_MOVE_INTERVAL = 1200; // Скорость монстра
+    const MONSTER_VISION = 3; // Радиус зрения монстра (в клетках)
     let CELL_SIZE = 30;
 
     let maze = [];
@@ -240,7 +241,6 @@
         gameRunning = true;
         
         if (monsterInterval) clearInterval(monsterInterval);
-        // Запускаем интервал с новой, более медленной скоростью
         monsterInterval = setInterval(moveMonsterLogic, MONSTER_MOVE_INTERVAL); 
         
         if (animationFrameId) cancelAnimationFrame(animationFrameId);
@@ -277,10 +277,25 @@
         monster.y += (mTargetY - monster.y) * 0.15;
     }
 
-    // --- ЛОГИКА МОНСТРА (BFS) ---
+    // --- ЛОГИКА МОНСТРА (УМНЫЙ + ТУПОЙ) ---
     function moveMonsterLogic() {
         if (!gameRunning) return;
 
+        // 1. Проверяем дистанцию до игрока
+        const dist = Math.abs(player.gx - monster.gx) + Math.abs(player.gy - monster.gy);
+
+        // Если игрок близко - используем умный поиск (BFS)
+        if (dist <= MONSTER_VISION) {
+            chasePlayer();
+        } else {
+            // Если игрок далеко - бродим случайно
+            wanderRandomly();
+        }
+        checkWinLoss();
+    }
+
+    // Умное преследование (когда видит игрока)
+    function chasePlayer() {
         let queue = [[{x: monster.gx, y: monster.gy}]];
         let visited = new Set([`${monster.gx},${monster.gy}`]);
         let path = null;
@@ -311,7 +326,31 @@
             monster.gx = path[1].x;
             monster.gy = path[1].y;
         }
-        checkWinLoss();
+    }
+
+    // Тупое блуждание (когда не видит игрока)
+    function wanderRandomly() {
+        const moves = [
+            {dx:0, dy:-1, wall:'top'}, {dx:1, dy:0, wall:'right'},
+            {dx:0, dy:1, wall:'bottom'}, {dx:-1, dy:0, wall:'left'}
+        ];
+        
+        // Перемешиваем направления, чтобы выбор был случайным
+        moves.sort(() => Math.random() - 0.5);
+
+        for (let m of moves) {
+            let nx = monster.gx + m.dx;
+            let ny = monster.gy + m.dy;
+            
+            // Проверяем, нет ли стены и в пределах ли карты
+            if (nx >= 0 && nx < COLS && ny >= 0 && ny < ROWS && 
+                !maze[monster.gy][monster.gx].walls[m.wall]) {
+                
+                monster.gx = nx;
+                monster.gy = ny;
+                return; // Делаем один шаг и выходим
+            }
+        }
     }
 
     // --- УПРАВЛЕНИЕ ---
@@ -397,8 +436,8 @@
         msgTitle.innerText = win ? "🎉 ПОБЕДА!" : "💀 ПОЙМАН!";
         msgTitle.style.color = win ? "#2ecc71" : "#e74c3c";
         msgDesc.innerHTML = win 
-            ? "Ты и твой динозавр спаслись!<br>Попробуй еще раз?" 
-            : "Монстр оказался быстрее...<br>Попробуй еще раз?";
+            ? "Твой раптор спасся!<br>Попробуй еще раз?" 
+            : "Монстр оказался хитрее...<br>Попробуй еще раз?";
     }
 
     // --- ОТРИСОВКА ---
@@ -434,11 +473,11 @@
         // Монстр
         ctx.fillText('👹', monster.x + off, monster.y + off);
 
-        // Динозавр с зеркальным отражением
+        // РАПТОР (T-Rex) с зеркальным отражением
         ctx.save();
         ctx.translate(player.x + off, player.y + off);
         if (!player.facingRight) ctx.scale(-1, 1);
-        ctx.fillText('🦕', 0, 0);
+        ctx.fillText('🦖', 0, 0);
         ctx.restore();
     }
 </script>
