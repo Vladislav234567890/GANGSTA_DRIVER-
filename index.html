@@ -11,55 +11,58 @@
             font-family: 'Segoe UI', sans-serif;
             margin: 0;
             height: 100vh;
-            width: 100vw;
             overflow: hidden;
             touch-action: none;
             user-select: none;
             -webkit-user-select: none;
             display: flex;
-            flex-direction: column; /* По умолчанию вертикально */
+            justify-content: center;
+            align-items: center;
         }
 
-        /* --- ШАПКА --- */
+        /* Главный контейнер приложения */
+        #app-wrapper {
+            display: flex;
+            flex-direction: column; /* По умолчанию вертикально */
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            max-width: 1200px;
+            position: relative;
+        }
+
         header {
             width: 100%;
-            height: 50px;
             display: flex;
             justify-content: center;
             align-items: center;
-            position: relative;
+            padding: 10px;
+            box-sizing: border-box;
             z-index: 10;
-            background: rgba(44, 62, 80, 0.9);
             flex-shrink: 0;
+            height: 50px;
         }
 
-        h1 { margin: 0; font-size: 18px; pointer-events: none; }
+        h1 { 
+            margin: 0; 
+            font-size: 20px; 
+            text-align: center;
+            pointer-events: none;
+        }
 
         .fs-btn {
             position: absolute;
-            right: 15px;
+            right: 20px;
             background: rgba(255,255,255,0.2);
             border: none;
             color: white;
-            font-size: 18px;
+            font-size: 20px;
             padding: 5px 10px;
             border-radius: 5px;
             cursor: pointer;
         }
 
-        /* --- ОСНОВНОЙ КОНТЕЙНЕР (Flex для игры и кнопок) --- */
-        #main-layout {
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column; /* Вертикально по умолчанию */
-            justify-content: center;
-            align-items: center;
-            width: 100%;
-            height: calc(100% - 50px); /* Вычитаем шапку */
-            position: relative;
-        }
-
-        /* --- ИГРОВОЕ ПОЛЕ --- */
         #game-container {
             position: relative;
             box-shadow: 0 0 15px rgba(0,0,0,0.5);
@@ -69,11 +72,12 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            transition: all 0.3s ease;
         }
 
         canvas { display: block; }
 
-        /* --- UI СЛОЙ (МЕНЮ) --- */
+        /* UI Слой (Меню) */
         #ui-layer {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -84,33 +88,39 @@
             background: rgba(0, 0, 0, 0.85);
             z-index: 20;
             text-align: center;
+            padding: 20px;
+            box-sizing: border-box;
             border-radius: 5px;
         }
         .hidden { display: none !important; }
         
         button.start-btn {
             padding: 15px 40px;
-            font-size: 20px;
+            font-size: 22px;
+            cursor: pointer;
             background: #27ae60;
             color: white;
             border: none;
             border-radius: 50px;
-            margin-top: 15px;
+            margin-top: 20px;
             box-shadow: 0 4px 0 #219150;
+            text-transform: uppercase;
             font-weight: bold;
-            cursor: pointer;
         }
         button.start-btn:active { transform: translateY(4px); box-shadow: none; }
 
-        /* --- КНОПКИ УПРАВЛЕНИЯ --- */
+        /* Кнопки управления */
         #controls {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            grid-template-rows: repeat(2, 1fr);
+            grid-template-columns: 1fr 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
             gap: 10px;
             padding: 10px;
+            flex-shrink: 0;
             z-index: 100;
             /* Размеры задаются JS или медиа-запросами */
+            width: 280px;
+            height: 160px;
         }
 
         .ctrl-btn {
@@ -120,15 +130,16 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 28px;
+            font-size: 32px;
             color: white;
             cursor: pointer;
-            user-select: none;
+            -webkit-tap-highlight-color: transparent;
         }
         
         .ctrl-btn:active, .ctrl-btn.pressed {
-            background: rgba(46, 204, 113, 0.5);
+            background: rgba(46, 204, 113, 0.4);
             border-color: #2ecc71;
+            transform: scale(0.95);
         }
 
         #btn-up { grid-column: 2; grid-row: 1; }
@@ -136,101 +147,78 @@
         #btn-down { grid-column: 2; grid-row: 2; }
         #btn-right { grid-column: 3; grid-row: 2; }
 
-        /* =========================================
-           АДАПТАЦИЯ ПОД ОРИЕНТАЦИЮ
-           ========================================= */
-
-        /* 1. ВЕРТИКАЛЬНАЯ (ПОРТРЕТНАЯ) */
-        @media (orientation: portrait) {
-            #main-layout { flex-direction: column; }
-            
-            #game-container {
-                margin-bottom: 10px;
-            }
-
-            #controls {
-                width: 260px;
-                height: 150px;
-                margin-bottom: 20px;
-            }
-            
-            /* В фуллскрине кнопки полупрозрачные внизу */
-            body.fullscreen-mode #controls {
-                position: absolute;
-                bottom: 10px;
-                opacity: 0.4;
-            }
-            body.fullscreen-mode .ctrl-btn:active { opacity: 1; }
-        }
-
-        /* 2. ГОРИЗОНТАЛЬНАЯ (ЛАНДШАФТНАЯ) */
+        /* --- ГОРИЗОНТАЛЬНАЯ ОРИЕНТАЦИЯ --- */
         @media (orientation: landscape) {
-            #main-layout { 
-                flex-direction: row; /* Игра слева, кнопки справа */
+            #app-wrapper {
+                flex-direction: row; /* Элементы в ряд */
                 justify-content: center;
                 align-items: center;
-                gap: 20px;
             }
 
             header {
                 position: absolute;
-                top: 0; left: 0;
+                top: 0;
+                left: 0;
                 width: auto;
-                background: transparent;
-                padding: 10px;
+                height: auto;
+                background: rgba(0,0,0,0.3);
+                border-bottom-right-radius: 10px;
             }
-            
-            /* В ландшафте убираем рамку у игры для экономии места */
+
             #game-container {
-                border: none;
-                box-shadow: none;
-                background: transparent;
+                /* В ландшафте игра занимает максимум высоты */
+                height: 90vh; 
+                width: auto;
+                margin-right: 20px; /* Отступ до кнопок */
             }
 
-            /* Кнопки становятся вертикальным блоком справа */
             #controls {
-                width: 180px;
-                height: 240px;
-                grid-template-columns: repeat(2, 1fr);
-                grid-template-rows: repeat(3, 1fr);
-                margin: 0;
+                /* Кнопки справа, вертикальный блок */
+                width: 160px;
+                height: 280px;
+                grid-template-columns: 1fr 1fr;
+                grid-template-rows: 1fr 1fr 1fr;
             }
 
-            /* Перестановка кнопок для ландшафта */
+            /* Перераспределение кнопок для правой панели */
             #btn-up { grid-column: 1 / span 2; grid-row: 1; }
             #btn-left { grid-column: 1; grid-row: 2; }
             #btn-right { grid-column: 2; grid-row: 2; }
             #btn-down { grid-column: 1 / span 2; grid-row: 3; }
+        }
 
-            /* В фуллскрине кнопки прижимаем к правому краю */
-            body.fullscreen-mode #controls {
-                position: absolute;
-                right: 20px;
-                top: 50%;
-                transform: translateY(-50%);
-                opacity: 0.4;
-            }
-            body.fullscreen-mode .ctrl-btn:active { opacity: 1; }
+        /* --- ПОЛНОЭКРАННЫЙ РЕЖИМ --- */
+        body.fullscreen-mode {
+            background: #34495e;
+        }
+        
+        body.fullscreen-mode #game-container {
+            border: none;
+            box-shadow: none;
         }
     </style>
 </head>
 <body>
 
-    <header>
-        <h1>🦖 Побег Раптора 👹</h1>
-        <button class="fs-btn" onclick="toggleFullScreen()">[ ⛶ ]</button>
-    </header>
-    
-    <div id="main-layout">
+    <div id="app-wrapper">
+        <header>
+            <h1>🦖 Побег Раптора 👹</h1>
+            <button class="fs-btn" onclick="toggleFullScreen()">[ ⛶ ]</button>
+        </header>
+        
         <div id="game-container">
             <canvas id="mazeCanvas"></canvas>
             <div id="ui-layer">
                 <h2 id="msg-title">Готов?</h2>
-                <p id="msg-desc" style="font-size: 14px;">Найди выход 🚪 раньше монстра!</p>
+                <p id="msg-desc" style="font-size: 16px; line-height: 1.4;">
+                    Найди выход 🚪 раньше монстра!<br>
+                    Управление: кнопки или свайпы.
+                </p>
                 <button class="start-btn" onclick="startGame()">ИГРАТЬ</button>
             </div>
         </div>
 
+        <!-- Экранные кнопки -->
         <div id="controls">
             <div class="ctrl-btn" id="btn-up">⬆️</div>
             <div class="ctrl-btn" id="btn-left">⬅️</div>
@@ -263,61 +251,68 @@
     let monster = { gx: 0, gy: 0, x: 0, y: 0 };
     let exitPos = { x: 0, y: 0 };
 
-    // --- FULLSCREEN LOGIC ---
+    // --- ЛОГИКА ПОЛНОЭКРАННОГО РЕЖИМА ---
     function toggleFullScreen() {
         if (!document.fullscreenElement) {
-            document.documentElement.requestFullscreen().catch(e => console.log(e));
+            document.documentElement.requestFullscreen().catch(err => {
+                console.log(`Error enabling full-screen: ${err.message}`);
+            });
         } else {
-            if (document.exitFullscreen) document.exitFullscreen();
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            }
         }
     }
 
     document.addEventListener('fullscreenchange', () => {
-        if (document.fullscreenElement) document.body.classList.add('fullscreen-mode');
-        else document.body.classList.remove('fullscreen-mode');
-        setTimeout(resize, 100);
+        if (document.fullscreenElement) {
+            document.body.classList.add('fullscreen-mode');
+        } else {
+            document.body.classList.remove('fullscreen-mode');
+        }
+        setTimeout(resize, 100); 
     });
 
-    // --- SMART RESIZE (УНИВЕРСАЛЬНЫЙ) ---
+    // --- УНИВЕРСАЛЬНЫЙ РЕСАЙЗ ---
     function resize() {
         const isLandscape = window.innerWidth > window.innerHeight;
-        const isFS = document.body.classList.contains('fullscreen-mode');
-        
-        // Определяем доступное место
-        let availW = window.innerWidth;
-        let availH = window.innerHeight;
+        const winW = window.innerWidth;
+        const winH = window.innerHeight;
 
-        // Вычитаем место под интерфейсы
+        let availableWidth, availableHeight;
+
         if (isLandscape) {
-            // В ландшафте: Шапка (если не FS) + Отступы + Кнопки справа (~200px)
-            availW -= 220; 
-            if (!isFS) availH -= 50; // Шапка
+            // Горизонтальный режим:
+            // Ширина = Экран минус место под кнопки (~200px)
+            // Высота = Экран минус отступы (~40px)
+            availableWidth = winW - 220;
+            availableHeight = winH - 40;
         } else {
-            // В портрете: Шапка (50) + Кнопки снизу (~180)
-            availH -= 230; 
-            if (!isFS) availW *= 0.95; // Небольшой отступ по бокам
+            // Вертикальный режим:
+            // Ширина = Экран минус отступы (~20px)
+            // Высота = Экран минус шапка (~50px) и кнопки (~180px)
+            availableWidth = winW - 20;
+            availableHeight = winH - 230;
         }
-
-        // Безопасные границы
-        if (availW < 100) availW = 100;
-        if (availH < 100) availH = 100;
-
-        // Расчет размера клетки
-        const cellW = Math.floor(availW / COLS);
-        const cellH = Math.floor(availH / ROWS);
-        CELL_SIZE = Math.min(cellW, cellH, 60); // Макс 60px
+        
+        // Рассчитываем размер клетки
+        const cellByWidth = Math.floor(availableWidth / COLS);
+        const cellByHeight = Math.floor(availableHeight / ROWS);
+        
+        // Выбираем меньшее значение, чтобы влезло
+        CELL_SIZE = Math.min(cellByWidth, cellByHeight, 60); 
 
         canvas.width = COLS * CELL_SIZE;
         canvas.height = ROWS * CELL_SIZE;
-
+        
         if (gameRunning || maze.length > 0) draw();
     }
-
+    
     window.addEventListener('resize', resize);
     window.addEventListener('orientationchange', () => setTimeout(resize, 300));
     resize();
 
-    // --- GAME LOGIC (Без изменений) ---
+    // --- ГЕНЕРАЦИЯ ЛАБИРИНТА ---
     function generateMaze() {
         maze = [];
         for (let y = 0; y < ROWS; y++) {
@@ -327,40 +322,53 @@
             }
             maze.push(row);
         }
+
         let stack = [{x: 0, y: 0}];
         maze[0][0].visited = true;
+
         while (stack.length > 0) {
             let current = stack[stack.length - 1];
             let neighbors = [];
             const dirs = [{dx:0, dy:-1}, {dx:1, dy:0}, {dx:0, dy:1}, {dx:-1, dy:0}];
+            
             for (let d of dirs) {
                 let nx = current.x + d.dx, ny = current.y + d.dy;
                 if (nx >= 0 && nx < COLS && ny >= 0 && ny < ROWS && !maze[ny][nx].visited) 
                     neighbors.push({x: nx, y: ny});
             }
+
             if (neighbors.length > 0) {
                 let next = neighbors[Math.floor(Math.random() * neighbors.length)];
                 let dx = current.x - next.x, dy = current.y - next.y;
+                
                 if (dx === 1) { maze[current.y][current.x].walls.left = false; maze[next.y][next.x].walls.right = false; }
                 else if (dx === -1) { maze[current.y][current.x].walls.right = false; maze[next.y][next.x].walls.left = false; }
                 if (dy === 1) { maze[current.y][current.x].walls.top = false; maze[next.y][next.x].walls.bottom = false; }
                 else if (dy === -1) { maze[current.y][current.x].walls.bottom = false; maze[next.y][next.x].walls.top = false; }
+                
                 maze[next.y][next.x].visited = true;
                 stack.push(next);
-            } else { stack.pop(); }
+            } else {
+                stack.pop();
+            }
         }
     }
 
+    // --- ИГРОВОЙ ЦИКЛ ---
     function startGame() {
         generateMaze();
         resize(); 
+        
         player = { gx: 0, gy: 0, x: 0, y: 0, facingRight: true, isMoving: false };
         exitPos = { x: COLS - 1, y: ROWS - 1 };
         monster = { gx: COLS - 1, gy: 0, x: (COLS - 1) * CELL_SIZE, y: 0 };
+        
         uiLayer.classList.add('hidden');
         gameRunning = true;
+        
         if (monsterInterval) clearInterval(monsterInterval);
         monsterInterval = setInterval(moveMonsterLogic, MONSTER_MOVE_INTERVAL); 
+        
         if (animationFrameId) cancelAnimationFrame(animationFrameId);
         gameLoop();
     }
@@ -377,22 +385,33 @@
         const dx = targetX - player.x;
         const dy = targetY - player.y;
         const dist = Math.sqrt(dx*dx + dy*dy);
+
         if (dist < 1) {
-            player.x = targetX; player.y = targetY; player.isMoving = false;
+            player.x = targetX;
+            player.y = targetY;
+            player.isMoving = false;
         } else {
-            player.x += dx * MOVE_SPEED; player.y += dy * MOVE_SPEED; player.isMoving = true;
+            player.x += dx * MOVE_SPEED;
+            player.y += dy * MOVE_SPEED;
+            player.isMoving = true;
         }
+
         const mTargetX = monster.gx * CELL_SIZE;
         const mTargetY = monster.gy * CELL_SIZE;
         monster.x += (mTargetX - monster.x) * 0.15;
         monster.y += (mTargetY - monster.y) * 0.15;
     }
 
+    // --- ЛОГИКА МОНСТРА ---
     function moveMonsterLogic() {
         if (!gameRunning) return;
         const dist = Math.abs(player.gx - monster.gx) + Math.abs(player.gy - monster.gy);
-        if (dist <= MONSTER_VISION) chasePlayer();
-        else wanderRandomly();
+
+        if (dist <= MONSTER_VISION) {
+            chasePlayer();
+        } else {
+            wanderRandomly();
+        }
         checkWinLoss();
     }
 
@@ -400,57 +419,85 @@
         let queue = [[{x: monster.gx, y: monster.gy}]];
         let visited = new Set([`${monster.gx},${monster.gy}`]);
         let path = null;
+
         while (queue.length > 0) {
             let currentPath = queue.shift();
             let pos = currentPath[currentPath.length - 1];
+
             if (pos.x === player.gx && pos.y === player.gy) { path = currentPath; break; }
-            const moves = [{dx:0, dy:-1, wall:'top'}, {dx:1, dy:0, wall:'right'}, {dx:0, dy:1, wall:'bottom'}, {dx:-1, dy:0, wall:'left'}];
+
+            const moves = [
+                {dx:0, dy:-1, wall:'top'}, {dx:1, dy:0, wall:'right'},
+                {dx:0, dy:1, wall:'bottom'}, {dx:-1, dy:0, wall:'left'}
+            ];
+
             for (let m of moves) {
                 let nx = pos.x + m.dx, ny = pos.y + m.dy;
                 let key = `${nx},${ny}`;
-                if (nx >= 0 && nx < COLS && ny >= 0 && ny < ROWS && !visited.has(key) && !maze[pos.y][pos.x].walls[m.wall]) {
+                if (nx >= 0 && nx < COLS && ny >= 0 && ny < ROWS && 
+                    !visited.has(key) && !maze[pos.y][pos.x].walls[m.wall]) {
                     visited.add(key);
                     queue.push([...currentPath, {x: nx, y: ny}]);
                 }
             }
         }
-        if (path && path.length > 1) { monster.gx = path[1].x; monster.gy = path[1].y; }
+
+        if (path && path.length > 1) {
+            monster.gx = path[1].x;
+            monster.gy = path[1].y;
+        }
     }
 
     function wanderRandomly() {
-        const moves = [{dx:0, dy:-1, wall:'top'}, {dx:1, dy:0, wall:'right'}, {dx:0, dy:1, wall:'bottom'}, {dx:-1, dy:0, wall:'left'}];
+        const moves = [
+            {dx:0, dy:-1, wall:'top'}, {dx:1, dy:0, wall:'right'},
+            {dx:0, dy:1, wall:'bottom'}, {dx:-1, dy:0, wall:'left'}
+        ];
         moves.sort(() => Math.random() - 0.5);
+
         for (let m of moves) {
-            let nx = monster.gx + m.dx; let ny = monster.gy + m.dy;
-            if (nx >= 0 && nx < COLS && ny >= 0 && ny < ROWS && !maze[monster.gy][monster.gx].walls[m.wall]) {
-                monster.gx = nx; monster.gy = ny; return;
+            let nx = monster.gx + m.dx;
+            let ny = monster.gy + m.dy;
+            if (nx >= 0 && nx < COLS && ny >= 0 && ny < ROWS && 
+                !maze[monster.gy][monster.gx].walls[m.wall]) {
+                monster.gx = nx;
+                monster.gy = ny;
+                return;
             }
         }
     }
 
+    // --- УПРАВЛЕНИЕ ---
     function handleInput(direction) {
         if (!gameRunning || player.isMoving) return;
+        
         let cell = maze[player.gy][player.gx];
         let moved = false;
+
         switch(direction) {
             case 'up':    if (!cell.walls.top)    { player.gy--; moved = true; } break;
             case 'right': if (!cell.walls.right)  { player.gx++; player.facingRight = true; moved = true; } break;
             case 'down':  if (!cell.walls.bottom) { player.gy++; moved = true; } break;
             case 'left':  if (!cell.walls.left)   { player.gx--; player.facingRight = false; moved = true; } break;
         }
+
         if (moved) checkWinLoss();
     }
 
     document.addEventListener('keydown', (e) => {
         switch(e.key) {
-            case 'ArrowUp': case 'w': handleInput('up'); break;
-            case 'ArrowRight': case 'd': handleInput('right'); break;
-            case 'ArrowDown': case 's': handleInput('down'); break;
-            case 'ArrowLeft': case 'a': handleInput('left'); break;
+            case 'ArrowUp': case 'w': case 'W': handleInput('up'); break;
+            case 'ArrowRight': case 'd': case 'D': handleInput('right'); break;
+            case 'ArrowDown': case 's': case 'S': handleInput('down'); break;
+            case 'ArrowLeft': case 'a': case 'A': handleInput('left'); break;
         }
     });
 
-    const btns = {'btn-up': 'up', 'btn-right': 'right', 'btn-down': 'down', 'btn-left': 'left'};
+    const btns = {
+        'btn-up': 'up', 'btn-right': 'right', 
+        'btn-down': 'down', 'btn-left': 'left'
+    };
+
     Object.keys(btns).forEach(id => {
         const el = document.getElementById(id);
         el.addEventListener('pointerdown', (e) => {
@@ -466,13 +513,20 @@
         touchStartX = e.changedTouches[0].screenX;
         touchStartY = e.changedTouches[0].screenY;
     }, {passive: false});
+
     document.addEventListener('touchend', (e) => {
         const dx = e.changedTouches[0].screenX - touchStartX;
         const dy = e.changedTouches[0].screenY - touchStartY;
+        
         if (Math.abs(dx) < 30 && Math.abs(dy) < 30) return; 
-        if (Math.abs(dx) > Math.abs(dy)) handleInput(dx > 0 ? 'right' : 'left');
-        else handleInput(dy > 0 ? 'down' : 'up');
+
+        if (Math.abs(dx) > Math.abs(dy)) {
+            handleInput(dx > 0 ? 'right' : 'left');
+        } else {
+            handleInput(dy > 0 ? 'down' : 'up');
+        }
     }, {passive: false});
+
     document.addEventListener('touchmove', (e) => e.preventDefault(), { passive: false });
 
     function checkWinLoss() {
@@ -485,15 +539,19 @@
         clearInterval(monsterInterval);
         cancelAnimationFrame(animationFrameId);
         draw();
+        
         uiLayer.classList.remove('hidden');
         msgTitle.innerText = win ? "🎉 ПОБЕДА!" : "💀 ПОЙМАН!";
         msgTitle.style.color = win ? "#2ecc71" : "#e74c3c";
-        msgDesc.innerHTML = win ? "Твой раптор спасся!<br>Попробуй еще раз?" : "Монстр оказался хитрее...<br>Попробуй еще раз?";
+        msgDesc.innerHTML = win 
+            ? "Твой раптор спасся!<br>Попробуй еще раз?" 
+            : "Монстр оказался хитрее...<br>Попробуй еще раз?";
     }
 
     function draw() {
         ctx.fillStyle = '#34495e';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
+
         ctx.strokeStyle = '#ecf0f1';
         ctx.lineWidth = 2;
         ctx.beginPath();
@@ -508,13 +566,16 @@
             }
         }
         ctx.stroke();
+
         const off = CELL_SIZE / 2;
         const fontSize = Math.floor(CELL_SIZE * 0.7);
         ctx.font = `${fontSize}px Arial`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
+
         ctx.fillText('🚪', exitPos.x * CELL_SIZE + off, exitPos.y * CELL_SIZE + off);
         ctx.fillText('👹', monster.x + off, monster.y + off);
+
         ctx.save();
         ctx.translate(player.x + off, player.y + off);
         if (!player.facingRight) ctx.scale(-1, 1);
